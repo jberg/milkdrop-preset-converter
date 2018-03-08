@@ -347,6 +347,12 @@ const varMap = {
   b3x: 'b3x',
   b1ed: 'b1ed',
   monitor: 'monitor',
+  bass: 'bass',
+  mid: 'mid',
+  treb: 'treb',
+  bass_att: 'bass_att',
+  mid_att: 'mid_att',
+  treb_att: 'treb_att',
 };
 
 function getBaseVals (text) {
@@ -356,7 +362,9 @@ function getBaseVals (text) {
     const line = lines[i];
     const splitLine = _.split(line, '=');
     if (splitLine.length > 1) {
-      baseVals[varMap[splitLine[0].toLowerCase()]] = parseFloat(splitLine[1]);
+      const varName = splitLine[0].toLowerCase();
+      const convertedVarName = varMap[varName];
+      baseVals[convertedVarName || varName] = parseFloat(splitLine[1]);
     }
   }
   return baseVals;

@@ -46,9 +46,12 @@ function getPerVetex (text) {
   return getLineWithPrefix(text, 'per_frame_pixel');
 }
 
-
 // eslint-disable-next-line import/prefer-default-export
 function convertShader (shader) {
+  if (shader.length === 0) {
+    return '';
+  }
+
   let shaderFixed = _.replace(shader, '#define sat saturate', '');
   shaderFixed = _.replace(shaderFixed, /sat\(/g, 'saturate(');
   shaderFixed = _.replace(shaderFixed, /float1/g, 'float');

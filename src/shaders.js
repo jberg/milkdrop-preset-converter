@@ -187,6 +187,7 @@ export function convertShader (shader) {
 
   let optimizedShader = optimizeGLSL(convertedShader, 1, false);
   optimizedShader = _.replace(optimizedShader, /void main \(\)\s*\{/, 'shader_body {');
+  optimizedShader = _.replace(optimizedShader, /gl_FragColor = (.+);/, (match, p1) => `ret = ${p1}.xyz;`);
 
   let shaderLines = _.split(optimizedShader, '\n');
   shaderLines = _.filter(shaderLines, (line) => !_.startsWith(line, 'varying') &&

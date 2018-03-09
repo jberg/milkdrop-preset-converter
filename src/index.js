@@ -3,30 +3,30 @@ import { convertShader } from './shaders';
 import { varMap } from './constants';
 import mdparser from '../lib/mdparser.min';
 
-function getLineWithPrefix (text, prefix) {
+function getLinesWithPrefix (lines, prefix) {
   const regex = new RegExp(`${prefix}_\\d+=\`*`);
-  const lines = _.filter(_.split(text, '\n'), (line) => regex.test(line));
-  return _.join(_.map(lines, (line) => _.last(_.split(line, regex))), '\n');
+  const filteredLines = _.filter(lines, (line) => regex.test(line));
+  return _.join(_.map(filteredLines, (line) => _.last(_.split(line, regex))), '\n');
 }
 
-function getWarpShader (text) {
-  return getLineWithPrefix(text, 'warp');
+function getWarpShader (lines) {
+  return getLinesWithPrefix(lines, 'warp');
 }
 
-function getCompShader (text) {
-  return getLineWithPrefix(text, 'comp');
+function getCompShader (lines) {
+  return getLinesWithPrefix(lines, 'comp');
 }
 
-function getPresetInit (text) {
-  return getLineWithPrefix(text, 'per_frame_init');
+function getPresetInit (lines) {
+  return getLinesWithPrefix(lines, 'per_frame_init');
 }
 
-function getPerFrame (text) {
-  return getLineWithPrefix(text, 'per_frame');
+function getPerFrame (lines) {
+  return getLinesWithPrefix(lines, 'per_frame');
 }
 
-function getPerVetex (text) {
-  return getLineWithPrefix(text, 'per_frame_pixel');
+function getPerVetex (lines) {
+  return getLinesWithPrefix(lines, 'per_frame_pixel');
 }
 
 function createBasePresetFuns (presetInit, perFrame, perVertex) {
@@ -50,8 +50,7 @@ function createBasePresetFuns (presetInit, perFrame, perVertex) {
   return presetMap;
 }
 
-function getBaseVals (text) {
-  const lines = _.split(text, '\n');
+function getBaseVals (lines) {
   const baseVals = {};
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -83,23 +82,23 @@ function splitOutBaseVals (text) {
   ];
 }
 
-function getWaveOrShapeBaseVals (text, prefix) {
-  const lines = _.filter(_.split(text, '\n'), (line) => _.startsWith(line, prefix));
-  const trimmedLines = _.map(lines, (line) => _.replace(line, prefix, ''));
-  return getBaseVals(_.join(trimmedLines, '\n'));
+function getWaveOrShapeBaseVals (lines, prefix) {
+  const filteredLines = _.filter(lines, (line) => _.startsWith(line, prefix));
+  const trimmedLines = _.map(filteredLines, (line) => _.replace(line, prefix, ''));
+  return getBaseVals(trimmedLines);
 }
 
 function splitPreset (text) {
   const presetParts = splitOutBaseVals(text);
-  const baseValsText = presetParts[0];
-  const presetText = presetParts[1];
+  const baseValLines = _.split(presetParts[0], '\n');
+  const presetLines = _.split(presetParts[1], '\n');
 
-  const baseVals = getBaseVals(baseValsText);
-  const warp = getWarpShader(presetText);
-  const comp = getCompShader(presetText);
-  const presetInit = getPresetInit(presetText);
-  const perFrame = getPerFrame(presetText);
-  const perVertex = getPerVetex(presetText);
+  const baseVals = getBaseVals(baseValLines);
+  const warp = getWarpShader(presetLines);
+  const comp = getCompShader(presetLines);
+  const presetInit = getPresetInit(presetLines);
+  const perFrame = getPerFrame(presetLines);
+  const perVertex = getPerVetex(presetLines);
 
   const shapes = [];
   for (let i = 0; i < 4; i++) {
@@ -108,7 +107,7 @@ function splitPreset (text) {
     const shapePerFramePrefix = `shape_${i}_per_frame`;
 
     shapes.push({
-      baseVals: getWaveOrShapeBaseVals(presetText, shapeBaseValsPrefix),
+      baseVals: getWaveOrShapeBaseVals(presetLines, shapeBaseValsPrefix),
     });
   }
 
@@ -120,7 +119,7 @@ function splitPreset (text) {
     const wavePerPointPrefix = `wave_${i}_per_point`;
 
     waves.push({
-      baseVals: getWaveOrShapeBaseVals(presetText, waveBaseValsPrefix),
+      baseVals: getWaveOrShapeBaseVals(presetLines, waveBaseValsPrefix),
     });
   }
 

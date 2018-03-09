@@ -26,7 +26,7 @@ function getPerFrame (lines) {
 }
 
 function getPerVetex (lines) {
-  return getLinesWithPrefix(lines, 'per_frame_pixel');
+  return getLinesWithPrefix(lines, 'per_pixel');
 }
 
 function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, waves) {

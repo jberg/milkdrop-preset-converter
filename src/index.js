@@ -175,6 +175,7 @@ export function convertPreset (text) {
   const compShader = convertShader(presetParts.comp);
 
   return _.assign({}, presetMap, {
+    baseVals: presetParts.baseVals,
     warp: warpShader,
     comp: compShader,
   });

@@ -185,7 +185,12 @@ export function convertShader (shader) {
   convertedShader = _.replace(convertedShader, 'uniform float M_PI_2', 'const float M_PI_2');
   convertedShader = _.replace(convertedShader, 'uniform float M_PI', 'const float M_PI');
 
-  const optimizedShader = optimizeGLSL(convertedShader, 1, false);
+  let optimizedShader = optimizeGLSL(convertedShader, 1, false);
+  optimizedShader = _.replace(optimizedShader, /void main \(\)\s*\{/, 'shader_body {');
 
-  return optimizedShader;
+  let shaderLines = _.split(optimizedShader, '\n');
+  shaderLines = _.filter(shaderLines, (line) => !_.startsWith(line, 'varying') &&
+                                                !_.startsWith(line, 'uniform'));
+
+  return _.join(shaderLines, '\n');
 }

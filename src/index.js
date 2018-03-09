@@ -83,6 +83,12 @@ function splitOutBaseVals (text) {
   ];
 }
 
+function getWaveOrShapeBaseVals (text, prefix) {
+  const lines = _.filter(_.split(text, '\n'), (line) => _.startsWith(line, prefix));
+  const trimmedLines = _.map(lines, (line) => _.replace(line, prefix, ''));
+  return getBaseVals(_.join(trimmedLines, '\n'));
+}
+
 function splitPreset (text) {
   const presetParts = splitOutBaseVals(text);
   const baseValsText = presetParts[0];
@@ -95,11 +101,36 @@ function splitPreset (text) {
   const perFrame = getPerFrame(presetText);
   const perVertex = getPerVetex(presetText);
 
+  const shapes = [];
+  for (let i = 0; i < 4; i++) {
+    const shapeBaseValsPrefix = `shapecode_${i}_`;
+    const shapeInitPrefix = `shape_${i}_init`;
+    const shapePerFramePrefix = `shape_${i}_per_frame`;
+
+    shapes.push({
+      baseVals: getWaveOrShapeBaseVals(presetText, shapeBaseValsPrefix),
+    });
+  }
+
+  const waves = [];
+  for (let i = 0; i < 4; i++) {
+    const waveBaseValsPrefix = `wavecode_${i}_`;
+    const waveInitPrefix = `wave_${i}_init`;
+    const wavePerFramePrefix = `wave_${i}_per_frame`;
+    const wavePerPointPrefix = `wave_${i}_per_point`;
+
+    waves.push({
+      baseVals: getWaveOrShapeBaseVals(presetText, waveBaseValsPrefix),
+    });
+  }
+
   return {
     baseVals,
     presetInit,
     perFrame,
     perVertex,
+    waves,
+    shapes,
     warp,
     comp
   };

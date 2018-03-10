@@ -46,6 +46,8 @@ export function convertShader (shader) {
    uniform sampler2D sampler_noise_lq_lite;
    uniform sampler2D sampler_noise_mq;
    uniform sampler2D sampler_noise_hq;
+   uniform sampler3D sampler_noisevol_lq;
+   uniform sampler3D sampler_noisevol_hq;
 
    uniform sampler2D sampler_blur1;
    uniform sampler2D sampler_blur2;
@@ -55,6 +57,8 @@ export function convertShader (shader) {
    float4 texsize_noise_mq;
    float4 texsize_noise_hq;
    float4 texsize_noise_lq_lite;
+   float4 texsize_noisevol_lq;
+   float4 texsize_noisevol_hq;
 
    float4 _qa;
    float4 _qb;

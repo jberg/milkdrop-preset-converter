@@ -57,7 +57,7 @@ function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, waves) {
     presetMap.waves.push(_.assign({}, waves[i], {
       init_eqs: new Function('m', `${parsedPreset.waves[i].perFrameInitEQs} \n\t\treturn m;`),
       frame_eqs: new Function('m', `${parsedPreset.waves[i].perFrameEQs} \n\t\treturn m;`),
-      point_eqs: new Function('m', `${parsedPreset.waves[i].perPixelEQs} \n\t\treturn m;`),
+      point_eqs: new Function('m', `${parsedPreset.waves[i].perPointEQs} \n\t\treturn m;`),
     }));
   }
   /* eslint-enable no-new-func */

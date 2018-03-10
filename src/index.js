@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { convertShader } from './shaders';
 import { varMap } from './constants';
-import mdparser from '../lib/mdparser.min';
+import mdparser from '../lib/md-parser.min';
 
 function getLinesWithPrefix (lines, prefix) {
   const regex = new RegExp(`${prefix}_\\d+=\`*`);

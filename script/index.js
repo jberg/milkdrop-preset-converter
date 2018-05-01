@@ -22,7 +22,9 @@ function processConvertedShader (shader) {
   let processedShader = _.replace(shader, '#version 300 es\n', '');
   processedShader = _.replace(processedShader, 'void main ()', 'shader_body');
   processedShader = _.replace(processedShader, /xlv_TEXCOORD0/g, 'uv');
-  processedShader = _.replace(processedShader, '_glesFragData[0]', 'ret');
+  processedShader = _.replace(processedShader,
+                              /_glesFragData\[0\] = (.+);\n\}/,
+                              (match, varName) => `ret = ${varName}.xyz;\n}`);
   processedShader = _.replace(processedShader, 'out lowp vec4 _glesFragData[4];\n', '');
   processedShader = _.replace(processedShader, /highp\s*/g, '');
   processedShader = _.replace(processedShader, /medp\s*/g, '');

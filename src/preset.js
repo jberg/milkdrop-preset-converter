@@ -132,7 +132,7 @@ export function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, w
   const parsedFrameEQs = parsedPreset.perFrameEQs ? parsedPreset.perFrameEQs.trim() : '';
   const parsedPixelEQs = parsedPreset.perPixelEQs ? parsedPreset.perPixelEQs.trim() : '';
 
-  /* eslint-disable no-new-func */
+  /* eslint-disable no-new-func, max-len */
   const presetMap = { shapes: [], waves: [] };
   presetMap.init_eqs_str = parsedInitEQs;
   presetMap.frame_eqs_str = parsedFrameEQs;
@@ -146,22 +146,27 @@ export function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, w
   }
 
   for (let i = 0; i < parsedPreset.shapes.length; i++) {
+    const shapeInitEqs = parsedPreset.shapes[i].perFrameInitEQs ? parsedPreset.shapes[i].perFrameInitEQs.trim() : '';
+    const shapeFrameEqs = parsedPreset.shapes[i].perFrameEQs ? parsedPreset.shapes[i].perFrameEQs.trim() : '';
     presetMap.shapes.push(_.assign({}, shapes[i], {
-      init_eqs_str: parsedPreset.shapes[i].perFrameInitEQs,
-      frame_eqs_str: parsedPreset.shapes[i].perFrameEQs,
-      init_eqs: new Function('m', `${parsedPreset.shapes[i].perFrameInitEQs} \n\t\treturn m;`),
-      frame_eqs: new Function('m', `${parsedPreset.shapes[i].perFrameEQs} \n\t\treturn m;`),
+      init_eqs_str: shapeInitEqs,
+      frame_eqs_str: shapeFrameEqs,
+      init_eqs: new Function('m', `${shapeInitEqs} \n\t\treturn m;`),
+      frame_eqs: new Function('m', `${shapeFrameEqs} \n\t\treturn m;`),
     }));
   }
 
   for (let i = 0; i < parsedPreset.waves.length; i++) {
+    const waveInitEqs = parsedPreset.waves[i].perFrameInitEQs ? parsedPreset.waves[i].perFrameInitEQs.trim() : '';
+    const waveFrameEqs = parsedPreset.waves[i].perFrameEQs ? parsedPreset.waves[i].perFrameEQs.trim() : '';
+    const wavePointEqs = parsedPreset.waves[i].perPointEQs ? parsedPreset.waves[i].perPointEQs.trim() : '';
     presetMap.waves.push(_.assign({}, waves[i], {
-      init_eqs_str: parsedPreset.waves[i].perFrameInitEQs,
-      frame_eqs_str: parsedPreset.waves[i].perFrameEQs,
-      point_eqs_str: parsedPreset.waves[i].perPointEQs,
-      init_eqs: new Function('m', `${parsedPreset.waves[i].perFrameInitEQs} \n\t\treturn m;`),
-      frame_eqs: new Function('m', `${parsedPreset.waves[i].perFrameEQs} \n\t\treturn m;`),
-      point_eqs: new Function('m', `${parsedPreset.waves[i].perPointEQs} \n\t\treturn m;`),
+      init_eqs_str: waveInitEqs,
+      frame_eqs_str: waveFrameEqs,
+      point_eqs_str: wavePointEqs,
+      init_eqs: new Function('m', `${waveInitEqs} \n\t\treturn m;`),
+      frame_eqs: new Function('m', `${waveFrameEqs} \n\t\treturn m;`),
+      point_eqs: new Function('m', `${wavePointEqs} \n\t\treturn m;`),
     }));
   }
   /* eslint-enable no-new-func */

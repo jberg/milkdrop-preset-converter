@@ -1,164 +1,34 @@
 import _ from 'lodash';
-import { convertShader } from './shaders';
-import { varMap } from './constants';
-import mdparser from '../lib/md-parser.min';
+import { prepareShader } from './shaders';
+import { splitPreset, createBasePresetFuns } from './preset';
+import parseHLSL from './hlslParser';
+import optimizeGLSL from './glslOptimizer';
 
-function getLinesWithPrefix (lines, prefix) {
-  const regex = new RegExp(`${prefix}_\\d+=\`*`);
-  const filteredLines = _.filter(lines, (line) => regex.test(line));
-  return _.join(_.map(filteredLines, (line) => _.last(_.split(line, regex))), '\n');
-}
-
-function getWarpShader (lines) {
-  return getLinesWithPrefix(lines, 'warp');
-}
-
-function getCompShader (lines) {
-  return getLinesWithPrefix(lines, 'comp');
-}
-
-function getPresetInit (lines) {
-  return getLinesWithPrefix(lines, 'per_frame_init');
-}
-
-function getPerFrame (lines) {
-  return getLinesWithPrefix(lines, 'per_frame');
-}
-
-function getPerVetex (lines) {
-  return getLinesWithPrefix(lines, 'per_pixel');
-}
-
-function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, waves) {
-  const parsedPreset = mdparser.convert_preset_wave_and_shape(presetInit, perFrame, perVertex, shapes, waves);
-
-  const parsedInitEQs = parsedPreset.perFrameInitEQs ? parsedPreset.perFrameInitEQs.trim() : '';
-  const parsedFrameEQs = parsedPreset.perFrameEQs ? parsedPreset.perFrameEQs.trim() : '';
-  const parsedPixelEQs = parsedPreset.perPixelEQs ? parsedPreset.perPixelEQs.trim() : '';
-
-  /* eslint-disable no-new-func */
-  const presetMap = { shapes: [], waves: [] };
-  presetMap.init_eqs = new Function('m', `${parsedInitEQs} \n\t\treturn m;`);
-  presetMap.frame_eqs = new Function('m', `${parsedFrameEQs} \n\t\treturn m;`);
-  if (parsedPixelEQs === '') {
-    presetMap.pixel_eqs = '';
-  } else {
-    presetMap.pixel_eqs = new Function('m', `${parsedPixelEQs} \n\t\treturn m;`);
+function convertShader (shader) {
+  if (shader.length === 0) {
+    return '';
   }
 
-  for (let i = 0; i < parsedPreset.shapes.length; i++) {
-    presetMap.shapes.push(_.assign({}, shapes[i], {
-      init_eqs: new Function('m', `${parsedPreset.shapes[i].perFrameInitEQs} \n\t\treturn m;`),
-      frame_eqs: new Function('m', `${parsedPreset.shapes[i].perFrameEQs} \n\t\treturn m;`),
-    }));
-  }
+  const fullShader = prepareShader(shader);
+  let convertedShader = parseHLSL(fullShader, 'shader_body', 'fs');
+  convertedShader = _.replace(convertedShader, /#version 100\sprecision highp float;/, '');
+  convertedShader = _.join(_.filter(_.split(convertedShader, '\n'), (line) => !_.startsWith(line, '#line')), '\n');
+  convertedShader = _.replace(convertedShader, /vec2 uv;\s+uv = frag_TEXCOORD0;/, '');
+  convertedShader = _.replace(convertedShader, 'varying vec2 frag_TEXCOORD0;', 'varying vec2 uv;');
+  convertedShader = _.replace(convertedShader, 'gl_FragData[0]', 'gl_FragColor');
+  convertedShader = _.replace(convertedShader, 'uniform float M_INV_PI_2', 'const float M_INV_PI_2');
+  convertedShader = _.replace(convertedShader, 'uniform float M_PI_2', 'const float M_PI_2');
+  convertedShader = _.replace(convertedShader, 'uniform float M_PI', 'const float M_PI');
 
-  for (let i = 0; i < parsedPreset.waves.length; i++) {
-    presetMap.waves.push(_.assign({}, waves[i], {
-      init_eqs: new Function('m', `${parsedPreset.waves[i].perFrameInitEQs} \n\t\treturn m;`),
-      frame_eqs: new Function('m', `${parsedPreset.waves[i].perFrameEQs} \n\t\treturn m;`),
-      point_eqs: new Function('m', `${parsedPreset.waves[i].perPointEQs} \n\t\treturn m;`),
-    }));
-  }
-  /* eslint-enable no-new-func */
+  let optimizedShader = optimizeGLSL(convertedShader, 1, false);
+  optimizedShader = _.replace(optimizedShader, /void main \(\)\s*\{/, 'shader_body {');
+  optimizedShader = _.replace(optimizedShader, /gl_FragColor = (.+);/, (match, p1) => `ret = ${p1}.xyz;`);
 
-  return presetMap;
-}
+  let shaderLines = _.split(optimizedShader, '\n');
+  shaderLines = _.filter(shaderLines, (line) => !_.startsWith(line, 'varying') &&
+                                                !_.startsWith(line, 'uniform'));
 
-function getBaseVals (lines) {
-  const baseVals = {};
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const splitLine = _.split(line, '=');
-    if (splitLine.length > 1) {
-      const varName = splitLine[0].toLowerCase();
-      const convertedVarName = varMap[varName];
-      baseVals[convertedVarName || varName] = parseFloat(splitLine[1]);
-    }
-  }
-  return baseVals;
-}
-
-function isNonBaseVal (line) {
-  return _.startsWith(line, 'per_frame_init') ||
-         _.startsWith(line, 'per_frame') ||
-         _.startsWith(line, 'per_frame_pixel') ||
-         _.startsWith(line, 'wavecode') ||
-         _.startsWith(line, 'shapecode') ||
-         _.startsWith(line, 'warp_1') ||
-         _.startsWith(line, 'comp_1');
-}
-
-function splitOutBaseVals (text) {
-  const lines = _.split(text, '\n');
-  return [
-    _.join(_.takeWhile(lines, (line) => !isNonBaseVal(line)), '\n'),
-    _.join(_.dropWhile(lines, (line) => !isNonBaseVal(line)), '\n')
-  ];
-}
-
-function getWaveOrShapeEQs (lines, prefix) {
-  const regex = new RegExp(`${prefix}\\d+=`);
-  const filteredLines = _.filter(lines, (line) => regex.test(line));
-  return _.join(_.map(filteredLines, (line) => _.last(_.split(line, regex))), '\n');
-}
-
-function getWaveOrShapeBaseVals (lines, prefix) {
-  const filteredLines = _.filter(lines, (line) => _.startsWith(line, prefix));
-  const trimmedLines = _.map(filteredLines, (line) => _.replace(line, prefix, ''));
-  return getBaseVals(trimmedLines);
-}
-
-function splitPreset (text) {
-  const presetParts = splitOutBaseVals(text);
-  const baseValLines = _.split(presetParts[0], '\n');
-  const presetLines = _.split(presetParts[1], '\n');
-
-  const baseVals = getBaseVals(baseValLines);
-  const warp = getWarpShader(presetLines);
-  const comp = getCompShader(presetLines);
-  const presetInit = getPresetInit(presetLines);
-  const perFrame = getPerFrame(presetLines);
-  const perVertex = getPerVetex(presetLines);
-
-  const shapes = [];
-  for (let i = 0; i < 4; i++) {
-    const shapeBaseValsPrefix = `shapecode_${i}_`;
-    const shapeInitPrefix = `shape_${i}_init`;
-    const shapePerFramePrefix = `shape_${i}_per_frame`;
-
-    shapes.push({
-      baseVals: getWaveOrShapeBaseVals(presetLines, shapeBaseValsPrefix),
-      init_eqs_str: getWaveOrShapeEQs(presetLines, shapeInitPrefix),
-      frame_eqs_str: getWaveOrShapeEQs(presetLines, shapePerFramePrefix),
-    });
-  }
-
-  const waves = [];
-  for (let i = 0; i < 4; i++) {
-    const waveBaseValsPrefix = `wavecode_${i}_`;
-    const waveInitPrefix = `wave_${i}_init`;
-    const wavePerFramePrefix = `wave_${i}_per_frame`;
-    const wavePerPointPrefix = `wave_${i}_per_point`;
-
-    waves.push({
-      baseVals: getWaveOrShapeBaseVals(presetLines, waveBaseValsPrefix),
-      init_eqs_str: getWaveOrShapeEQs(presetLines, waveInitPrefix),
-      frame_eqs_str: getWaveOrShapeEQs(presetLines, wavePerFramePrefix),
-      point_eqs_str: getWaveOrShapeEQs(presetLines, wavePerPointPrefix),
-    });
-  }
-
-  return {
-    baseVals,
-    presetInit,
-    perFrame,
-    perVertex,
-    waves,
-    shapes,
-    warp,
-    comp
-  };
+  return _.join(shaderLines, '\n');
 }
 
 // eslint-disable-next-line import/prefer-default-export

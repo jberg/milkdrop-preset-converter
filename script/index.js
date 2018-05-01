@@ -10,7 +10,7 @@ function processShader (shader) {
     return '';
   }
 
-  let processedShader = _.replace(shader, 'shader_body', 'xlat_main');
+  const processedShader = _.replace(shader, 'shader_body', 'xlat_main');
   return processedShader;
 }
 
@@ -27,9 +27,12 @@ function processConvertedShader (shader) {
   processedShader = _.replace(processedShader, /highp\s*/g, '');
   processedShader = _.replace(processedShader, /medp\s*/g, '');
   processedShader = _.replace(processedShader, /lowp\s*/g, '');
-  processedShader = _.join(_.filter(_.split(processedShader, '\n'), (line) => {
-    return !(_.startsWith(line, 'in') || _.startsWith(line, 'uniform'));
-  }), '\n');
+
+  const shaderLines = _.split(processedShader, '\n');
+  const fileredLines = _.filter(shaderLines, (line) => !(_.startsWith(line, 'in') ||
+                                                         _.startsWith(line, 'uniform')));
+  processedShader = _.join(fileredLines, '\n');
+
   return processedShader;
 }
 

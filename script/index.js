@@ -59,8 +59,20 @@ const presetMap = createBasePresetFuns(presetParts.presetInit,
 
 const warpShader = processShader(prepareShader(presetParts.warp));
 const compShader = processShader(prepareShader(presetParts.comp));
-const hlslconvWarp = spawnPromiseWithInput(warpShader, args[0]);
-const hlslconvComp = spawnPromiseWithInput(compShader, args[0]);
+
+let hlslconvWarp;
+if (!_.isEmpty(warpShader)) {
+  hlslconvWarp = spawnPromiseWithInput(warpShader, args[0]);
+} else {
+  hlslconvWarp = Promise.resolve('');
+}
+
+let hlslconvComp;
+if (!_.isEmpty(compShader)) {
+  hlslconvComp = spawnPromiseWithInput(compShader, args[0]);
+} else {
+  hlslconvComp = Promise.resolve('');
+}
 
 Promise.all([hlslconvWarp, hlslconvComp])
 .then((shaders) => {

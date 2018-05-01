@@ -128,14 +128,15 @@ export function splitPreset (text) {
 export function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, waves) {
   const parsedPreset = mdparser.convert_preset_wave_and_shape(presetInit, perFrame, perVertex, shapes, waves);
 
-  console.log('PARSED: %O', parsedPreset);
-
   const parsedInitEQs = parsedPreset.perFrameInitEQs ? parsedPreset.perFrameInitEQs.trim() : '';
   const parsedFrameEQs = parsedPreset.perFrameEQs ? parsedPreset.perFrameEQs.trim() : '';
   const parsedPixelEQs = parsedPreset.perPixelEQs ? parsedPreset.perPixelEQs.trim() : '';
 
   /* eslint-disable no-new-func */
   const presetMap = { shapes: [], waves: [] };
+  presetMap.init_eqs_str = parsedInitEQs;
+  presetMap.frame_eqs_str = parsedFrameEQs;
+  presetMap.pixel_eqs_str = parsedPixelEQs;
   presetMap.init_eqs = new Function('m', `${parsedInitEQs} \n\t\treturn m;`);
   presetMap.frame_eqs = new Function('m', `${parsedFrameEQs} \n\t\treturn m;`);
   if (parsedPixelEQs === '') {
@@ -146,6 +147,8 @@ export function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, w
 
   for (let i = 0; i < parsedPreset.shapes.length; i++) {
     presetMap.shapes.push(_.assign({}, shapes[i], {
+      init_eqs_str: parsedPreset.shapes[i].perFrameInitEQs,
+      frame_eqs_str: parsedPreset.shapes[i].perFrameEQs,
       init_eqs: new Function('m', `${parsedPreset.shapes[i].perFrameInitEQs} \n\t\treturn m;`),
       frame_eqs: new Function('m', `${parsedPreset.shapes[i].perFrameEQs} \n\t\treturn m;`),
     }));
@@ -153,6 +156,9 @@ export function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, w
 
   for (let i = 0; i < parsedPreset.waves.length; i++) {
     presetMap.waves.push(_.assign({}, waves[i], {
+      init_eqs_str: parsedPreset.waves[i].perFrameInitEQs,
+      frame_eqs_str: parsedPreset.waves[i].perFrameEQs,
+      point_eqs_str: parsedPreset.waves[i].perPointEQs,
       init_eqs: new Function('m', `${parsedPreset.waves[i].perFrameInitEQs} \n\t\treturn m;`),
       frame_eqs: new Function('m', `${parsedPreset.waves[i].perFrameEQs} \n\t\treturn m;`),
       point_eqs: new Function('m', `${parsedPreset.waves[i].perPointEQs} \n\t\treturn m;`),

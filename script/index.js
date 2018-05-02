@@ -49,7 +49,8 @@ const preset = fs.readFileSync(args[1], 'utf8');
 const presetName = path.basename(args[1]);
 const presetOutputName = _.replace(presetName, '.milk', '.json');
 
-const mainPresetText = _.split(preset, '[preset00]')[1];
+let mainPresetText = _.split(preset, '[preset00]')[1];
+mainPresetText = _.replace(mainPresetText, /\r\n/g, '\n');
 const presetParts = splitPreset(mainPresetText);
 const presetMap = createBasePresetFuns(presetParts.presetInit,
                                        presetParts.perFrame,

@@ -11,7 +11,7 @@
   "scripts": {
     "build": "webpack  --config config/webpack.config.js --env prod",
     "dev": "webpack  --config config/webpack.config.js --progress --colors --watch --env dev",
-    "convert": "node script/convertDirectory"
+    "convert": "node --max-old-space-size=4096 script/convertDirectory"
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",

@@ -17,15 +17,28 @@ function convertPreset (item) {
 }
 
 fs.readdir(args[2], async (err, items) => {
-  for (var i = 0; i < items.length; i++) {
-    const item = items[i];
-    if (item.endsWith('.milk')) {
-      console.log('converting %O: %O', i, item);
-      try {
-        await convertPreset(item);
-      } catch (e) {
-        console.log('err: %O', e);
+  const par = 8;
+  const iter = Math.ceil(items.length / par);
+  for (var i = 0; i < iter; i++) {
+    const start = i * par;
+    const end = Math.min((i + 1) * par, items.length);
+    const procs = [];
+    for (var j = start; j < end; j ++) {
+      const item = items[j];
+      if (item.endsWith('.milk')) {
+        console.log('converting %O: %O', j, item);
+        try {
+          procs.push(convertPreset(item));
+        } catch (e) {
+          console.log('err %O: %O', j, e);
+        }
       }
+    }
+
+    try {
+      await Promise.all(procs);
+    } catch (e) {
+      console.log('err: %O', e);
     }
   }
 });

@@ -27,6 +27,10 @@ export function prepareShader (shader) {
   shaderFixed = _.replace(shaderFixed, /tex3d/g, 'tex3D');
   shaderFixed = _.replace(shaderFixed, /lerp\(ret,\s*1\s*,/g, 'lerp(ret, float3(1,1,1),');
 
+  const shaderLines = _.split(shaderFixed, '\n');
+  const fileredLines = _.filter(shaderLines, (line) => !_.startsWith(line, 'sampler'));
+  shaderFixed = _.join(fileredLines, '\n');
+
   const shaderParts = getShaderParts(shaderFixed);
   // TODO: split vars (IN HEADER) that are like float3 a,x,el;
   const fullShader =

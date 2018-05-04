@@ -21,6 +21,10 @@ export function prepareShader (shader) {
   }
 
   const shaderFixed = _.replace(shader, 'sampler sampler_pw_noise_lq;\n', '');
+  shaderFixed = _.replace(shaderFixed, 'sampler2D sampler_pw_noise_lq;\n', '');
+  shaderFixed = _.replace(shaderFixed, 'sampler sampler_pw_noise_hq;\n', '');
+  shaderFixed = _.replace(shaderFixed, 'sampler2D sampler_pw_noise_hq;\n', '');
+
   const shaderParts = getShaderParts(shaderFixed);
   const fullShader =
   `#define  M_PI   3.14159265359

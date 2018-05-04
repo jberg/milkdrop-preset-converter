@@ -20,20 +20,12 @@ export function prepareShader (shader) {
     return '';
   }
 
-  let shaderFixed = _.replace(shader, '#define sat saturate', '');
-  shaderFixed = _.replace(shaderFixed, /sat\(/g, 'saturate(');
-  shaderFixed = _.replace(shaderFixed, /float1/g, 'float');
-  shaderFixed = _.replace(shaderFixed, /tex2d/g, 'tex2D');
-  shaderFixed = _.replace(shaderFixed, /tex3d/g, 'tex3D');
-  shaderFixed = _.replace(shaderFixed, /lerp\(ret,\s*1\s*,/g, 'lerp(ret, float3(1,1,1),');
-  shaderFixed = _.replace(shaderFixed, 'sampler sampler_pw_noise_lq;\n', '');
-
+  const shaderFixed = _.replace(shader, 'sampler sampler_pw_noise_lq;\n', '');
   const shaderParts = getShaderParts(shaderFixed);
-  // TODO: split vars (IN HEADER) that are like float3 a,x,el;
   const fullShader =
-  `const float M_PI = 3.14159265359;
-   const float M_PI_2 = 6.28318530718;
-   const float M_INV_PI_2 = 0.159154943091895;
+  `#define  M_PI   3.14159265359
+   #define  M_PI_2 6.28318530718
+   #define  M_INV_PI_2  0.159154943091895
 
    uniform sampler2D sampler_main;
    uniform sampler2D sampler_fw_main;
@@ -146,29 +138,15 @@ export function prepareShader (shader) {
    float ang;
    float2 uv_orig;
 
-   float3 lum(float3 v){
-     return float3(dot(v, float3(0.32,0.49,0.29)));
-   }
+   #define GetMain(uv) (tex2D(sampler_main,uv).xyz)
+   #define GetPixel(uv) (tex2D(sampler_main,uv).xyz)
+   #define GetBlur1(uv) (tex2D(sampler_blur1,uv).xyz*scale1 + bias1)
+   #define GetBlur2(uv) (tex2D(sampler_blur2,uv).xyz*scale2 + bias2)
+   #define GetBlur3(uv) (tex2D(sampler_blur3,uv).xyz*scale3 + bias3)
 
-   float3 GetMain (float2 uv) {
-     return tex2D(sampler_main,uv).xyz;
-   }
-
-   float3 GetPixel (float2 uv) {
-     return tex2D(sampler_main,uv).xyz;
-   }
-
-   float3 GetBlur1 (float2 uv) {
-     return tex2D(sampler_blur1,uv).xyz * scale1 + bias1;
-   }
-
-   float3 GetBlur2 (float2 uv) {
-     return tex2D(sampler_blur2,uv).xyz * scale2 + bias2;
-   }
-
-   float3 GetBlur3 (float2 uv) {
-     return tex2D(sampler_blur3,uv).xyz * scale3 + bias3;
-   }
+   #define lum(x) (dot(x,float3(0.32,0.49,0.29)))
+   #define tex2d tex2D
+   #define tex3d tex3D
 
    ${shaderParts[0]}
 

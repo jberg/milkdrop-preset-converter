@@ -85,5 +85,5 @@ Promise.all([hlslconvWarp, hlslconvComp])
   fs.writeFileSync(`${args[2]}/${presetOutputName}`, JSON.stringify(presetOutput));
 })
 .catch((err) => {
-  console.error('[spawn] stderr: ', err.stderr);
+  console.error('[spawn] stderr: %O', err);
 });

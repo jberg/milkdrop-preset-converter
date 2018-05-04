@@ -8,6 +8,11 @@ function convertPreset (item) {
     const cp = fork(args[0], [args[1], `${args[2]}/${item}`, args[3]]);
     cp.on('error', reject)
       .on('close', (code) => (code === 0) ? resolve() : reject());
+
+    setTimeout(() => {
+      reject('timeout, converting for longer than 15 seconds');
+      cp.kill('SIGINT');
+    }, 15000);
   });
 }
 
@@ -16,7 +21,11 @@ fs.readdir(args[2], async (err, items) => {
     const item = items[i];
     if (item.endsWith('.milk')) {
       console.log('converting %O: %O', i, item);
-      await convertPreset(item);
+      try {
+        await convertPreset(item);
+      } catch (e) {
+        console.log('err: %O', e);
+      }
     }
   }
 });

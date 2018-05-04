@@ -20,7 +20,7 @@ export function prepareShader (shader) {
     return '';
   }
 
-  const shaderFixed = _.replace(shader, 'sampler sampler_pw_noise_lq;\n', '');
+  let shaderFixed = _.replace(shader, 'sampler sampler_pw_noise_lq;\n', '');
   shaderFixed = _.replace(shaderFixed, 'sampler2D sampler_pw_noise_lq;\n', '');
   shaderFixed = _.replace(shaderFixed, 'sampler sampler_pw_noise_hq;\n', '');
   shaderFixed = _.replace(shaderFixed, 'sampler2D sampler_pw_noise_hq;\n', '');

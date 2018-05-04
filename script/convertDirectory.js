@@ -15,7 +15,6 @@ fs.readdir(args[2], async (err, items) => {
   for (var i = 0; i < items.length; i++) {
     const item = items[i];
     if (item.endsWith('.milk')) {
-      console.log('converting %O', item);
       console.log('converting %O: %O', i, item);
       await convertPreset(item);
     }

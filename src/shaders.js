@@ -26,10 +26,7 @@ export function prepareShader (shader) {
   shaderFixed = _.replace(shaderFixed, /tex2d/g, 'tex2D');
   shaderFixed = _.replace(shaderFixed, /tex3d/g, 'tex3D');
   shaderFixed = _.replace(shaderFixed, /lerp\(ret,\s*1\s*,/g, 'lerp(ret, float3(1,1,1),');
-
-  const shaderLines = _.split(shaderFixed, '\n');
-  const fileredLines = _.filter(shaderLines, (line) => !_.startsWith(line, 'sampler'));
-  shaderFixed = _.join(fileredLines, '\n');
+  shaderFixed = _.replace(shaderFixed, 'sampler sampler_pw_noise_lq;\n', '');
 
   const shaderParts = getShaderParts(shaderFixed);
   // TODO: split vars (IN HEADER) that are like float3 a,x,el;
@@ -50,6 +47,8 @@ export function prepareShader (shader) {
    uniform sampler2D sampler_noise_hq;
    uniform sampler3D sampler_noisevol_lq;
    uniform sampler3D sampler_noisevol_hq;
+
+   uniform sampler2D sampler_pw_noise_lq;
 
    uniform sampler2D sampler_blur1;
    uniform sampler2D sampler_blur2;

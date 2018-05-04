@@ -6,10 +6,6 @@ const args = process.argv.slice(2);
 function convertPreset (item) {
   return new Promise((resolve, reject) => {
     const cp = fork(args[0], [args[1], `${args[2]}/${item}`, args[3]]);
-    let stderr = '';
-    cp.stderr.on('data', (chunk) => {
-      stderr += chunk;
-    });
     cp.on('error', reject)
       .on('close', (code) => (code === 0) ? resolve() : reject(stderr));
 

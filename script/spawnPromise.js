@@ -17,7 +17,7 @@ export default function spawnPromiseWithInput (input, ...args) {
         if (code === 0) {
           resolve(stdout);
         } else {
-          reject("OUT: " + stdout + "ERROR: " + stderr);
+          reject(new Error(`OUT: ${stdout} ERROR: ${stderr}`));
         }
       });
 

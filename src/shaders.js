@@ -152,7 +152,7 @@ export function prepareShader (shader) {
    #define tex2d tex2D
    #define tex3d tex3D
 
-   ${shaderParts[0]}
+   ${_.replace(shaderParts[0], 'sampler sampler_', 'sampler2D sampler_')}
 
    float4 shader_body (float2 uv : TEXCOORD0) : COLOR0
    {

@@ -14,6 +14,38 @@ function processShader (shader) {
   return processedShader;
 }
 
+function isUserSampler (line) {
+  if (!_.startsWith(line, 'uniform sampler')) {
+    return false;
+  }
+
+  const builtinSamplers = [
+    'sampler_main',
+    'sampler_fw_main',
+    'sampler_pw_main',
+    'sampler_fc_main',
+    'sampler_pc_main',
+    'sampler_noise_lq',
+    'sampler_noise_lq_lite',
+    'sampler_noise_mq',
+    'sampler_noise_hq',
+    'sampler_pw_noise_lq',
+    'sampler_noisevol_lq',
+    'sampler_noisevol_hq',
+    'sampler_blur1',
+    'sampler_blur2',
+    'sampler_blur3'
+  ];
+
+  const re = /uniform sampler2D sampler_(.+);$/;
+  const matches = line.match(re);
+  if (matches && matches.length > 1) {
+    return !_.includes(builtinSamplers, `sampler_${matches[1]}`);
+  }
+
+  return false;
+}
+
 function processConvertedShader (shader) {
   if (_.isEmpty(shader)) {
     return '';
@@ -32,7 +64,8 @@ function processConvertedShader (shader) {
 
   const shaderLines = _.split(processedShader, '\n');
   const fileredLines = _.filter(shaderLines, (line) => !(_.startsWith(line, 'in') ||
-                                                         _.startsWith(line, 'uniform')));
+                                                         (_.startsWith(line, 'uniform') &&
+                                                          !isUserSampler(line))));
   processedShader = _.join(fileredLines, '\n');
 
   return processedShader;

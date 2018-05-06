@@ -115,6 +115,11 @@ Promise.all([hlslconvWarp, hlslconvComp])
     comp: processConvertedShader(shaders[1].toString()),
   });
 
+  if ((_.isEmpty(presetOutput.warp) && !_.isEmpty(warpShader)) ||
+      (_.isEmpty(presetOutput.comp) && !_.isEmpty(compShader))) {
+    throw new Error('error translating shaders');
+  }
+
   fs.writeFileSync(`${args[2]}/${presetOutputName}`, JSON.stringify(presetOutput));
 })
 .catch((err) => {

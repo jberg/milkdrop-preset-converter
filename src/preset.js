@@ -2,6 +2,132 @@ import _ from 'lodash';
 import { varMap } from './constants';
 import mdparser from '../lib/md-parser.min';
 
+const baseValsDefaults = {
+  decay: 0.98,
+  gammaadj: 2,
+  echo_zoom: 2,
+  echo_alpha: 0,
+  echo_orient: 0,
+  red_blue: 0,
+  brighten: 0,
+  darken: 0,
+  wrap: 1,
+  darken_center: 0,
+  solarize: 0,
+  invert: 0,
+  fshader: 0,
+  b1n: 0,
+  b2n: 0,
+  b3n: 0,
+  b1x: 1,
+  b2x: 1,
+  b3x: 1,
+  b1ed: 0.25,
+  wave_mode: 0,
+  additivewave: 0,
+  wave_dots: 0,
+  wave_thick: 0,
+  wave_a: 0.8,
+  wave_scale: 1,
+  wave_smoothing: 0.75,
+  wave_mystery: 0,
+  modwavealphabyvolume: 0,
+  modwavealphastart: 0.75,
+  modwavealphaend: 0.95,
+  wave_r: 1,
+  wave_g: 1,
+  wave_b: 1,
+  wave_x: 0.5,
+  wave_y: 0.5,
+  wave_brighten: 1,
+  mv_x: 12,
+  mv_y: 9,
+  mv_dx: 0,
+  mv_dy: 0,
+  mv_l: 0.9,
+  mv_r: 1,
+  mv_g: 1,
+  mv_b: 1,
+  mv_a: 1,
+  warpanimspeed: 1,
+  warpscale: 1,
+  zoomexp: 1,
+  zoom: 1,
+  rot: 0,
+  cx: 0.5,
+  cy: 0.5,
+  dx: 0,
+  dy: 0,
+  warp: 1,
+  sx: 1,
+  sy: 1,
+  ob_size: 0.01,
+  ob_r: 0,
+  ob_g: 0,
+  ob_b: 0,
+  ob_a: 0,
+  ib_size: 0.01,
+  ib_r: 0.25,
+  ib_g: 0.25,
+  ib_b: 0.25,
+  ib_a: 0,
+};
+
+const shapeBaseValsDefaults = {
+  enabled: 0,
+  sides: 4,
+  additive: 0,
+  thickoutline: 0,
+  textured: 0,
+  num_inst: 1,
+  tex_zoom: 1,
+  tex_ang: 0,
+  x: 0.5,
+  y: 0.5,
+  rad: 0.1,
+  ang: 0,
+  r: 1,
+  g: 0,
+  b: 0,
+  a: 1,
+  r2: 0,
+  g2: 1,
+  b2: 0,
+  a2: 0,
+  border_r: 1,
+  border_g: 1,
+  border_b: 1,
+  border_a: 0.1,
+};
+
+const waveBaseValsDefaults = {
+  enabled: 0,
+  samples: 512,
+  sep: 0,
+  scaling: 1,
+  smoothing: 0.5,
+  r: 1,
+  g: 1,
+  b: 1,
+  a: 1,
+  spectrum: 0,
+  usedots: 0,
+  thick: 0,
+  additive: 0,
+};
+
+function removeBaseValDefaults (baseVals, defaultVals) {
+  const baseValsNonDefault = {};
+  _.forEach(baseVals, (v, k) => {
+    if (v !== defaultVals[k]) {
+      baseValsNonDefault[k] = v;
+    }
+  });
+  baseValsNonDefault.enabled = baseVals.enabled;
+
+  return baseValsNonDefault;
+}
+
 function getLinesWithPrefix (lines, prefix) {
   const regex = new RegExp(`${prefix}_\\d+=\`*`);
   const filteredLines = _.filter(lines, (line) => regex.test(line));
@@ -78,7 +204,7 @@ export function splitPreset (text) {
   const baseValLines = _.split(presetParts[0], '\n');
   const presetLines = _.split(presetParts[1], '\n');
 
-  const baseVals = getBaseVals(baseValLines);
+  const baseVals = removeBaseValDefaults(getBaseVals(baseValLines), baseValsDefaults);
   const warp = getWarpShader(presetLines);
   const comp = getCompShader(presetLines);
   const presetInit = getPresetInit(presetLines);
@@ -91,11 +217,18 @@ export function splitPreset (text) {
     const shapeInitPrefix = `shape_${i}_init`;
     const shapePerFramePrefix = `shape_${i}_per_frame`;
 
-    shapes.push({
-      baseVals: getWaveOrShapeBaseVals(presetLines, shapeBaseValsPrefix),
-      init_eqs_str: getWaveOrShapeEQs(presetLines, shapeInitPrefix),
-      frame_eqs_str: getWaveOrShapeEQs(presetLines, shapePerFramePrefix),
-    });
+    let shapeBaseVals = getWaveOrShapeBaseVals(presetLines, shapeBaseValsPrefix);
+    shapeBaseVals = removeBaseValDefaults(shapeBaseVals, shapeBaseValsDefaults);
+
+    if (shapeBaseVals.enabled) {
+      shapes.push({
+        baseVals: shapeBaseVals,
+        init_eqs_str: getWaveOrShapeEQs(presetLines, shapeInitPrefix),
+        frame_eqs_str: getWaveOrShapeEQs(presetLines, shapePerFramePrefix),
+      });
+    } else {
+      shapes.push({ baseVals: { enabled: 0 } });
+    }
   }
 
   const waves = [];
@@ -105,12 +238,19 @@ export function splitPreset (text) {
     const wavePerFramePrefix = `wave_${i}_per_frame`;
     const wavePerPointPrefix = `wave_${i}_per_point`;
 
-    waves.push({
-      baseVals: getWaveOrShapeBaseVals(presetLines, waveBaseValsPrefix),
-      init_eqs_str: getWaveOrShapeEQs(presetLines, waveInitPrefix),
-      frame_eqs_str: getWaveOrShapeEQs(presetLines, wavePerFramePrefix),
-      point_eqs_str: getWaveOrShapeEQs(presetLines, wavePerPointPrefix),
-    });
+    let waveBaseVals = getWaveOrShapeBaseVals(presetLines, waveBaseValsPrefix);
+    waveBaseVals = removeBaseValDefaults(waveBaseVals, waveBaseValsDefaults);
+
+    if (waveBaseVals.enabled !== 0) {
+      waves.push({
+        baseVals: waveBaseVals,
+        init_eqs_str: getWaveOrShapeEQs(presetLines, waveInitPrefix),
+        frame_eqs_str: getWaveOrShapeEQs(presetLines, wavePerFramePrefix),
+        point_eqs_str: getWaveOrShapeEQs(presetLines, wavePerPointPrefix),
+      });
+    } else {
+      waves.push({ baseVals: { enabled: 0 } });
+    }
   }
 
   return {
@@ -146,28 +286,36 @@ export function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, w
   }
 
   for (let i = 0; i < parsedPreset.shapes.length; i++) {
-    const shapeInitEqs = parsedPreset.shapes[i].perFrameInitEQs ? parsedPreset.shapes[i].perFrameInitEQs.trim() : '';
-    const shapeFrameEqs = parsedPreset.shapes[i].perFrameEQs ? parsedPreset.shapes[i].perFrameEQs.trim() : '';
-    presetMap.shapes.push(_.assign({}, shapes[i], {
-      init_eqs_str: shapeInitEqs,
-      frame_eqs_str: shapeFrameEqs,
-      init_eqs: new Function('m', `${shapeInitEqs} \n\t\treturn m;`),
-      frame_eqs: new Function('m', `${shapeFrameEqs} \n\t\treturn m;`),
-    }));
+    if (shapes[i].baseVals.enabled !== 0) {
+      const shapeInitEqs = parsedPreset.shapes[i].perFrameInitEQs ? parsedPreset.shapes[i].perFrameInitEQs.trim() : '';
+      const shapeFrameEqs = parsedPreset.shapes[i].perFrameEQs ? parsedPreset.shapes[i].perFrameEQs.trim() : '';
+      presetMap.shapes.push(_.assign({}, shapes[i], {
+        init_eqs_str: shapeInitEqs,
+        frame_eqs_str: shapeFrameEqs,
+        init_eqs: new Function('m', `${shapeInitEqs} \n\t\treturn m;`),
+        frame_eqs: new Function('m', `${shapeFrameEqs} \n\t\treturn m;`),
+      }));
+    } else {
+      presetMap.shapes.push(shapes[i]);
+    }
   }
 
   for (let i = 0; i < parsedPreset.waves.length; i++) {
-    const waveInitEqs = parsedPreset.waves[i].perFrameInitEQs ? parsedPreset.waves[i].perFrameInitEQs.trim() : '';
-    const waveFrameEqs = parsedPreset.waves[i].perFrameEQs ? parsedPreset.waves[i].perFrameEQs.trim() : '';
-    const wavePointEqs = parsedPreset.waves[i].perPointEQs ? parsedPreset.waves[i].perPointEQs.trim() : '';
-    presetMap.waves.push(_.assign({}, waves[i], {
-      init_eqs_str: waveInitEqs,
-      frame_eqs_str: waveFrameEqs,
-      point_eqs_str: wavePointEqs,
-      init_eqs: new Function('m', `${waveInitEqs} \n\t\treturn m;`),
-      frame_eqs: new Function('m', `${waveFrameEqs} \n\t\treturn m;`),
-      point_eqs: new Function('m', `${wavePointEqs} \n\t\treturn m;`),
-    }));
+    if (waves[i].baseVals.enabled !== 0) {
+      const waveInitEqs = parsedPreset.waves[i].perFrameInitEQs ? parsedPreset.waves[i].perFrameInitEQs.trim() : '';
+      const waveFrameEqs = parsedPreset.waves[i].perFrameEQs ? parsedPreset.waves[i].perFrameEQs.trim() : '';
+      const wavePointEqs = parsedPreset.waves[i].perPointEQs ? parsedPreset.waves[i].perPointEQs.trim() : '';
+      presetMap.waves.push(_.assign({}, waves[i], {
+        init_eqs_str: waveInitEqs,
+        frame_eqs_str: waveFrameEqs,
+        point_eqs_str: wavePointEqs,
+        init_eqs: new Function('m', `${waveInitEqs} \n\t\treturn m;`),
+        frame_eqs: new Function('m', `${waveFrameEqs} \n\t\treturn m;`),
+        point_eqs: new Function('m', `${wavePointEqs} \n\t\treturn m;`),
+      }));
+    } else {
+      presetMap.waves.push(waves[i]);
+    }
   }
   /* eslint-enable no-new-func */
 

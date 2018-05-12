@@ -278,12 +278,12 @@ export function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, w
   presetMap.init_eqs_str = optimizeEquations(parsedInitEQs);
   presetMap.frame_eqs_str = optimizeEquations(parsedFrameEQs);
   presetMap.pixel_eqs_str = optimizeEquations(parsedPixelEQs);
-  presetMap.init_eqs = new Function('a', `${parsedInitEQs} \n\t\treturn a;`);
-  presetMap.frame_eqs = new Function('a', `${parsedFrameEQs} \n\t\treturn a;`);
+  presetMap.init_eqs = new Function('a', `${parsedInitEQs} return a;`);
+  presetMap.frame_eqs = new Function('a', `${parsedFrameEQs} return a;`);
   if (parsedPixelEQs === '') {
     presetMap.pixel_eqs = '';
   } else {
-    presetMap.pixel_eqs = new Function('a', `${parsedPixelEQs} \n\t\treturn a;`);
+    presetMap.pixel_eqs = new Function('a', `${parsedPixelEQs} return a;`);
   }
 
   for (let i = 0; i < parsedPreset.shapes.length; i++) {
@@ -293,8 +293,8 @@ export function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, w
       presetMap.shapes.push(_.assign({}, shapes[i], {
         init_eqs_str: shapeInitEqs,
         frame_eqs_str: shapeFrameEqs,
-        init_eqs: new Function('a', `${shapeInitEqs} \n\t\treturn a;`),
-        frame_eqs: new Function('a', `${shapeFrameEqs} \n\t\treturn a;`),
+        init_eqs: new Function('a', `${shapeInitEqs} return a;`),
+        frame_eqs: new Function('a', `${shapeFrameEqs} return a;`),
       }));
     } else {
       presetMap.shapes.push(shapes[i]);
@@ -310,9 +310,9 @@ export function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, w
         init_eqs_str: waveInitEqs,
         frame_eqs_str: waveFrameEqs,
         point_eqs_str: wavePointEqs,
-        init_eqs: new Function('a', `${waveInitEqs} \n\t\treturn a;`),
-        frame_eqs: new Function('a', `${waveFrameEqs} \n\t\treturn a;`),
-        point_eqs: new Function('a', `${wavePointEqs} \n\t\treturn a;`),
+        init_eqs: new Function('a', `${waveInitEqs} return a;`),
+        frame_eqs: new Function('a', `${waveFrameEqs} return a;`),
+        point_eqs: new Function('a', `${wavePointEqs} return a;`),
       }));
     } else {
       presetMap.waves.push(waves[i]);

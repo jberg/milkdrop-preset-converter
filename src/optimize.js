@@ -2,68 +2,28 @@ import _ from 'lodash';
 import { compile } from 'google-closure-compiler-js';
 
 const externs = `
+  function rand(x){};
+  function sqr(x){};
+  function sqrt(x){};
+  function log10(x){};
+  function bnot(x){};
+  function sign(x){};
   function pow(x,y){};
   function div(x,y){};
   function mod(x,y){};
-  function rand(x){};
-  function bnot(x){};
+  function bitor(x,y){};
+  function bitand(x,y){};
+  function sigmoid(x,y){};
+  function bor(x,y){};
+  function band(x,y){};
+  function equal(x,y){};
+  function above(x,y){};
+  function below(x,y){};
+  function ifcond(x,y,z){};
 `;
 
 function makeEqsString (eqsStr) {
   return `
-    function sqr(x) {
-      return x * x;
-    }
-
-    function sqrt(x) {
-      return Math.sqrt(Math.abs(x));
-    }
-
-    function log10(val) {
-      return Math.log(val) * Math.LOG10E;
-    }
-
-    function sign(x) {
-      return x > 0 ? 1 : x < 0 ? -1 : 0;
-    }
-
-    function bitor(x, y) {
-      return Math.floor(x) | Math.floor(y);
-    }
-
-    function bitand(x, y) {
-      return Math.floor(x) & Math.floor(y);
-    }
-
-    function sigmoid(x, y) {
-      var t = 1 + Math.exp(-x * y);
-      return Math.abs(t) > 0.00001 ? 1.0 / t : 0;
-    }
-
-    function bor(x, y) {
-      return x != 0 || y != 0 ? 1 : 0;
-    }
-
-    function band(x, y) {
-      return x != 0 && y != 0 ? 1 : 0;
-    }
-
-    function equal(x, y) {
-      return Math.abs(x - y) < 0.00001 ? 1 : 0;
-    }
-
-    function above(x, y) {
-      return x > y ? 1 : 0;
-    }
-
-    function below(x, y) {
-      return x < y ? 1 : 0;
-    }
-
-    function ifcond(x, y, z) {
-      return x != 0 ? y : z;
-    }
-
     function run(a) {
       ${eqsStr}
 

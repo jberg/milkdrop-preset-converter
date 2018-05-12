@@ -8,11 +8,6 @@ function convertPreset (item) {
     const cp = fork(args[0], [args[1], `${args[2]}/${item}`, args[3]]);
     cp.on('error', reject)
       .on('close', (code) => (code === 0) ? resolve() : reject());
-
-    setTimeout(() => {
-      reject('timeout, converting for longer than 15 seconds');
-      cp.kill('SIGINT');
-    }, 15000);
   });
 }
 

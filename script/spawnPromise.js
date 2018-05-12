@@ -23,5 +23,10 @@ export default function spawnPromiseWithInput (input, ...args) {
 
     cp.stdin.write(Buffer.from(input));
     cp.stdin.end();
+
+    setTimeout(() => {
+      reject('timeout, converting for longer than 15 seconds');
+      cp.kill('SIGINT');
+    }, 15000);
   });
 }

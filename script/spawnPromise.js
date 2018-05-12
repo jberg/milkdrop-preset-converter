@@ -25,7 +25,7 @@ export default function spawnPromiseWithInput (input, ...args) {
     cp.stdin.end();
 
     setTimeout(() => {
-      reject('timeout, converting for longer than 15 seconds');
+      reject(new Error('timeout, converting for longer than 15 seconds'));
       cp.kill('SIGINT');
     }, 15000);
   });

@@ -48,6 +48,10 @@ export default function optimizeEquations (eqsStr) {
         _.endsWith(outputSrc, 'return a};')) {
       return outputSrc.substring(23, outputSrc.length - 10);
     }
+
+    console.log('failed to properly compile:');
+    console.log(eqsStr);
+    console.log(closureOutput);
   }
 
   return eqsStr;

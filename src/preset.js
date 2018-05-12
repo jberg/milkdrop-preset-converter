@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { varMap } from './constants';
+import optimizeEquations from './optimize';
 import mdparser from '../lib/md-parser.min';
 
 const baseValsDefaults = {
@@ -274,26 +275,26 @@ export function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, w
 
   /* eslint-disable no-new-func, max-len */
   const presetMap = { shapes: [], waves: [] };
-  presetMap.init_eqs_str = parsedInitEQs;
-  presetMap.frame_eqs_str = parsedFrameEQs;
-  presetMap.pixel_eqs_str = parsedPixelEQs;
-  presetMap.init_eqs = new Function('m', `${parsedInitEQs} \n\t\treturn m;`);
-  presetMap.frame_eqs = new Function('m', `${parsedFrameEQs} \n\t\treturn m;`);
+  presetMap.init_eqs_str = optimizeEquations(parsedInitEQs);
+  presetMap.frame_eqs_str = optimizeEquations(parsedFrameEQs);
+  presetMap.pixel_eqs_str = optimizeEquations(parsedPixelEQs);
+  presetMap.init_eqs = new Function('a', `${parsedInitEQs} \n\t\treturn a;`);
+  presetMap.frame_eqs = new Function('a', `${parsedFrameEQs} \n\t\treturn a;`);
   if (parsedPixelEQs === '') {
     presetMap.pixel_eqs = '';
   } else {
-    presetMap.pixel_eqs = new Function('m', `${parsedPixelEQs} \n\t\treturn m;`);
+    presetMap.pixel_eqs = new Function('a', `${parsedPixelEQs} \n\t\treturn a;`);
   }
 
   for (let i = 0; i < parsedPreset.shapes.length; i++) {
     if (shapes[i].baseVals.enabled !== 0) {
-      const shapeInitEqs = parsedPreset.shapes[i].perFrameInitEQs ? parsedPreset.shapes[i].perFrameInitEQs.trim() : '';
-      const shapeFrameEqs = parsedPreset.shapes[i].perFrameEQs ? parsedPreset.shapes[i].perFrameEQs.trim() : '';
+      const shapeInitEqs = parsedPreset.shapes[i].perFrameInitEQs ? optimizeEquations(parsedPreset.shapes[i].perFrameInitEQs.trim()) : '';
+      const shapeFrameEqs = parsedPreset.shapes[i].perFrameEQs ? optimizeEquations(parsedPreset.shapes[i].perFrameEQs.trim()) : '';
       presetMap.shapes.push(_.assign({}, shapes[i], {
         init_eqs_str: shapeInitEqs,
         frame_eqs_str: shapeFrameEqs,
-        init_eqs: new Function('m', `${shapeInitEqs} \n\t\treturn m;`),
-        frame_eqs: new Function('m', `${shapeFrameEqs} \n\t\treturn m;`),
+        init_eqs: new Function('a', `${shapeInitEqs} \n\t\treturn a;`),
+        frame_eqs: new Function('a', `${shapeFrameEqs} \n\t\treturn a;`),
       }));
     } else {
       presetMap.shapes.push(shapes[i]);
@@ -302,16 +303,16 @@ export function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, w
 
   for (let i = 0; i < parsedPreset.waves.length; i++) {
     if (waves[i].baseVals.enabled !== 0) {
-      const waveInitEqs = parsedPreset.waves[i].perFrameInitEQs ? parsedPreset.waves[i].perFrameInitEQs.trim() : '';
-      const waveFrameEqs = parsedPreset.waves[i].perFrameEQs ? parsedPreset.waves[i].perFrameEQs.trim() : '';
-      const wavePointEqs = parsedPreset.waves[i].perPointEQs ? parsedPreset.waves[i].perPointEQs.trim() : '';
+      const waveInitEqs = parsedPreset.waves[i].perFrameInitEQs ? optimizeEquations(parsedPreset.waves[i].perFrameInitEQs.trim()) : '';
+      const waveFrameEqs = parsedPreset.waves[i].perFrameEQs ? optimizeEquations(parsedPreset.waves[i].perFrameEQs.trim()) : '';
+      const wavePointEqs = parsedPreset.waves[i].perPointEQs ? optimizeEquations(parsedPreset.waves[i].perPointEQs.trim()) : '';
       presetMap.waves.push(_.assign({}, waves[i], {
         init_eqs_str: waveInitEqs,
         frame_eqs_str: waveFrameEqs,
         point_eqs_str: wavePointEqs,
-        init_eqs: new Function('m', `${waveInitEqs} \n\t\treturn m;`),
-        frame_eqs: new Function('m', `${waveFrameEqs} \n\t\treturn m;`),
-        point_eqs: new Function('m', `${wavePointEqs} \n\t\treturn m;`),
+        init_eqs: new Function('a', `${waveInitEqs} \n\t\treturn a;`),
+        frame_eqs: new Function('a', `${waveFrameEqs} \n\t\treturn a;`),
+        point_eqs: new Function('a', `${wavePointEqs} \n\t\treturn a;`),
       }));
     } else {
       presetMap.waves.push(waves[i]);

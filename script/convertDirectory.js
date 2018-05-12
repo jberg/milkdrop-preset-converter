@@ -1,5 +1,8 @@
 const fork = require('child_process').fork;
 const fs = require('fs');
+const rxjs = require('../lib/rxjs.umd.min');
+const { from } = rxjs;
+const { filter, mergeMap } = rxjs.operators;
 
 const args = process.argv.slice(2);
 
@@ -11,29 +14,20 @@ function convertPreset (item) {
   });
 }
 
-fs.readdir(args[2], async (err, items) => {
-  const par = 8;
-  const iter = Math.ceil(items.length / par);
-  for (var i = 0; i < iter; i++) {
-    const start = i * par;
-    const end = Math.min((i + 1) * par, items.length);
-    const procs = [];
-    for (var j = start; j < end; j ++) {
-      const item = items[j];
-      if (item.endsWith('.milk')) {
-        console.log('converting %O: %O', j, item);
-        try {
-          procs.push(convertPreset(item));
-        } catch (e) {
-          console.log('err %O: %O', j, e);
-        }
-      }
-    }
-
-    try {
-      await Promise.all(procs);
-    } catch (e) {
-      console.log('err: %O', e);
-    }
-  }
+fs.readdir(args[2], (err, items) => {
+  from(items)
+    .pipe(
+      filter((item) => item.endsWith('.milk')),
+      mergeMap(
+        async (item) => {
+          try {
+            await convertPreset(item);
+          } catch (e) {
+            console.log('err %O: %O', item, e);
+          }
+        },
+        (item) => item,
+        6
+      ))
+    .subscribe((item) => console.log('finished: %O', item));
 });

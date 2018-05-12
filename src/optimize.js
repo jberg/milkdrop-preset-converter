@@ -64,10 +64,10 @@ function makeEqsString (eqsStr) {
       return x != 0 ? y : z;
     }
 
-    function run(m) {
+    function run(a) {
       ${eqsStr}
 
-      return m;
+      return a;
     }
 
     window['run'] = run;`;

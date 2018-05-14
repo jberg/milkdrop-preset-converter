@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-function getShaderParts (t) {
+export function getShaderParts (t) {
   const sbIndex = t.indexOf('shader_body');
   if (t && sbIndex > -1) {
     const beforeShaderBody = t.substring(0, sbIndex);
@@ -14,7 +14,6 @@ function getShaderParts (t) {
   return ['', t];
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export function prepareShader (shader) {
   if (shader.length === 0) {
     return '';

@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import _ from 'lodash';
 import spawnPromiseWithInput from './spawnPromise';
-import { prepareShader } from '../src/shaders';
+import { getShaderParts, prepareShader } from '../src/shaders';
 import { splitPreset, createBasePresetFuns } from '../src/preset';
 
 function processShader (shader) {
@@ -62,13 +62,31 @@ function processConvertedShader (shader) {
                               (match, varName) => `ret = ${varName}.xyz;\n}`);
   processedShader = _.replace(processedShader, 'out vec4 _glesFragData[4];\n', '');
 
-  const shaderLines = _.split(processedShader, '\n');
-  const fileredLines = _.filter(shaderLines, (line) => !(_.startsWith(line, 'in') ||
-                                                         (_.startsWith(line, 'uniform') &&
-                                                          !isUserSampler(line))));
-  processedShader = _.join(fileredLines, '\n');
+  const shaderParts = getShaderParts(processedShader);
+  let fragShaderHeaderText = shaderParts[0];
+  let fragShaderText = shaderParts[1];
 
-  return processedShader;
+  const shaderHeaderLines = _.split(fragShaderHeaderText, '\n');
+  const fileredHeaderLines = _.filter(shaderHeaderLines,
+                                      (line) => !(_.startsWith(line, 'in') ||
+                                                 (_.startsWith(line, 'uniform') &&
+                                                  !isUserSampler(line))));
+  fragShaderHeaderText = _.join(fileredHeaderLines, '\n');
+
+  let shaderBodyLines = _.split(fragShaderText, ';');
+  shaderBodyLines = _.dropWhile(shaderBodyLines, (line) => {
+    const trimmedLine = _.trim(line);
+    if (_.startsWith(trimmedLine, 'xlat_mutable')) {
+      const matches = trimmedLine.match(/xlat_mutable(.+)\s*=\s*(.+)/);
+      if (matches && matches.length === 3 && _.trim(matches[1]) === _.trim(matches[2])) {
+        return true;
+      }
+    }
+    return false;
+  });
+  fragShaderText = _.join(shaderBodyLines, ';');
+
+  return `${fragShaderHeaderText} shader_body { ${fragShaderText} }`;
 }
 
 const args = process.argv.slice(2);

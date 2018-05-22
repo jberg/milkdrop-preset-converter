@@ -3,6 +3,7 @@ import { compile } from 'google-closure-compiler-js';
 
 const externs = `
   function rand(x){};
+  function randint(x){};
   function sqr(x){};
   function sqrt(x){};
   function log10(x){};

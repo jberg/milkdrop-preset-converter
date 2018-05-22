@@ -273,7 +273,8 @@ export function splitPreset (text) {
 }
 
 export function createBasePresetFuns (presetVersion, presetInit, perFrame, perVertex, shapes, waves) {
-  const parsedPreset = mdparser.convert_preset_wave_and_shape(presetVersion, presetInit, perFrame, perVertex, shapes, waves);
+  const parsedPreset = mdparser.convert_preset_wave_and_shape(presetVersion, presetInit, perFrame,
+                                                              perVertex, shapes, waves);
 
   const parsedInitEQs = parsedPreset.perFrameInitEQs ? parsedPreset.perFrameInitEQs.trim() : '';
   const parsedFrameEQs = parsedPreset.perFrameEQs ? parsedPreset.perFrameEQs.trim() : '';

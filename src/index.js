@@ -36,7 +36,8 @@ export function convertPreset (text) {
   const mainPresetText = _.split(text, '[preset00]')[1];
   const presetParts = splitPreset(mainPresetText);
 
-  const presetMap = createBasePresetFuns(presetParts.presetInit,
+  const presetMap = createBasePresetFuns(presetParts.presetVersion,
+                                         presetParts.presetInit,
                                          presetParts.perFrame,
                                          presetParts.perVertex,
                                          presetParts.shapes,

@@ -199,8 +199,13 @@ function getWaveOrShapeBaseVals (lines, prefix) {
   return getBaseVals(trimmedLines);
 }
 
+function getVersion (text) {
+  return _.includes(text, 'MILKDROP_PRESET_VERSION=201') ? 2 : 1;
+}
+
 // eslint-disable-next-line import/prefer-default-export
 export function splitPreset (text) {
+  const presetVersion = getVersion(text);
   const presetParts = splitOutBaseVals(text);
   const baseValLines = _.split(presetParts[0], '\n');
   const presetLines = _.split(presetParts[1], '\n');
@@ -255,6 +260,7 @@ export function splitPreset (text) {
   }
 
   return {
+    presetVersion,
     baseVals,
     presetInit,
     perFrame,
@@ -266,8 +272,8 @@ export function splitPreset (text) {
   };
 }
 
-export function createBasePresetFuns (presetInit, perFrame, perVertex, shapes, waves) {
-  const parsedPreset = mdparser.convert_preset_wave_and_shape(presetInit, perFrame, perVertex, shapes, waves);
+export function createBasePresetFuns (presetVersion, presetInit, perFrame, perVertex, shapes, waves) {
+  const parsedPreset = mdparser.convert_preset_wave_and_shape(presetVersion, presetInit, perFrame, perVertex, shapes, waves);
 
   const parsedInitEQs = parsedPreset.perFrameInitEQs ? parsedPreset.perFrameInitEQs.trim() : '';
   const parsedFrameEQs = parsedPreset.perFrameEQs ? parsedPreset.perFrameEQs.trim() : '';

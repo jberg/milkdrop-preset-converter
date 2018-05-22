@@ -103,7 +103,8 @@ const presetOutputName = _.replace(presetName, '.milk', '.json');
 let mainPresetText = _.split(preset, '[preset00]')[1];
 mainPresetText = _.replace(mainPresetText, /\r\n/g, '\n');
 const presetParts = splitPreset(mainPresetText);
-const presetMap = createBasePresetFuns(presetParts.presetInit,
+const presetMap = createBasePresetFuns(presetParts.presetVersion,
+                                       presetParts.presetInit,
                                        presetParts.perFrame,
                                        presetParts.perVertex,
                                        presetParts.shapes,

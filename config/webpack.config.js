@@ -71,7 +71,7 @@ if (env === 'prod') {
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.optimize.ModuleConcatenationPlugin(),
 
-    new UglifyJsPlugin()
+    new UglifyJsPlugin({ parallel: true })
   );
 }
 
@@ -131,7 +131,7 @@ if (env === 'prod') {
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.optimize.ModuleConcatenationPlugin(),
 
-    new UglifyJsPlugin()
+    new UglifyJsPlugin({ parallel: true })
   );
 }
 

@@ -1,4 +1,4 @@
-import GLSLOptimizerModule from '../lib/glsl-optimizer';
+import GLSLOptimizerModule from '../../lib/glsl-optimizer';
 
 export default function optimizeGLSL () {}
 

@@ -2,8 +2,8 @@ import path from 'path';
 import fs from 'fs';
 import _ from 'lodash';
 import spawnPromiseWithInput from './spawnPromise';
-import { getShaderParts, prepareShader } from '../src/shaders';
-import { splitPreset, createBasePresetFuns } from '../src/preset';
+import { getShaderParts, prepareShader } from '../shared/shaders';
+import { splitPreset, createBasePresetFuns } from '../shared/preset';
 
 function processShader (shader) {
   if (_.isEmpty(shader)) {

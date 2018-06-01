@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { prepareShader } from './shaders';
-import { splitPreset, createBasePresetFuns } from './preset';
+import { prepareShader } from '../shared/shaders';
+import { splitPreset, createBasePresetFuns } from '../shared/preset';
 import parseHLSL from './hlslParser';
 import optimizeGLSL from './glslOptimizer';
 

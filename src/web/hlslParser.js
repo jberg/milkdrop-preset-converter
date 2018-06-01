@@ -1,4 +1,4 @@
-import HLSLParserModule from '../lib/hlslparser';
+import HLSLParserModule from '../../lib/hlslparser';
 
 export default function parseHLSL () {}
 

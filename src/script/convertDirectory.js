@@ -27,7 +27,7 @@ fs.readdir(args[2], (err, items) => {
           }
         },
         (item) => item,
-        6
+        7
       ))
     .subscribe((item) => console.log('finished: %O', item));
 });

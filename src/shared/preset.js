@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { varMap } from './constants';
 import optimizeEquations from './optimize';
-import mdparser from '../lib/md-parser.min';
+import mdparser from '../../lib/md-parser.min';
 
 const baseValsDefaults = {
   decay: 0.98,

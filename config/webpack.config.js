@@ -5,8 +5,9 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const path = require('path');
 const env  = require('yargs').argv.env;
 
-const srcRoot = path.join(__dirname, '..', 'src');
-const scriptRoot = path.join(__dirname, '..', 'script');
+const webRoot = path.join(__dirname, '..', 'src/web');
+const scriptRoot = path.join(__dirname, '..', 'src/script');
+const sharedRoot = path.join(__dirname, '..', 'src/shared');
 const nodeRoot = path.join(__dirname, '..', 'node_modules');
 const outputPath = path.join(__dirname, '..', 'dist');
 
@@ -17,7 +18,7 @@ if (env === 'prod') {
 }
 
 let clientConfig = {
-  entry: srcRoot + '/index.js',
+  entry: webRoot + '/index.js',
   devtool: 'source-map',
   target: 'web',
   output: {
@@ -50,7 +51,7 @@ let clientConfig = {
     ]
   },
   resolve: {
-    modules: [srcRoot, nodeRoot],
+    modules: [webRoot, sharedRoot, nodeRoot],
     extensions: ['.js']
   },
   plugins: [],
@@ -113,7 +114,7 @@ let scriptConfig = {
     ]
   },
   resolve: {
-    modules: [scriptRoot, srcRoot, nodeRoot],
+    modules: [scriptRoot, sharedRoot, nodeRoot],
     extensions: ['.js']
   },
   plugins: []

@@ -15,8 +15,11 @@
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
+    "glsl-optimizer-js": "^0.0.1",
     "google-closure-compiler-js": "^20180506.0.0",
+    "hlslparser-js": "^0.0.1",
     "lodash": "^4.17.4",
+    "milkdrop-eel-parser": "^0.0.1",
     "nan": "^2.8.0"
   },
   "devDependencies": {

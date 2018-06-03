@@ -11,7 +11,7 @@ const sharedRoot = path.join(__dirname, '..', 'src/shared');
 const nodeRoot = path.join(__dirname, '..', 'node_modules');
 const outputPath = path.join(__dirname, '..', 'dist');
 
-let outputFile = 'md-preset-converter';
+let outputFile = 'milkdrop-preset-converter';
 
 if (env === 'prod') {
   outputFile += '.min';
@@ -24,7 +24,7 @@ let clientConfig = {
   output: {
     path: outputPath,
     filename: outputFile + '.js',
-    library: 'mdPresetConverter',
+    library: 'milkdropPresetConverter',
     libraryTarget: 'umd'
   },
   module: {
@@ -77,7 +77,7 @@ if (env === 'prod') {
 }
 
 
-let scriptOutputFile = 'md-preset-converter-node';
+let scriptOutputFile = 'milkdrop-preset-converter-node';
 
 if (env === 'prod') {
   scriptOutputFile += '.min';

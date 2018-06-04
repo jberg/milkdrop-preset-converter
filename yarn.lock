@@ -1963,9 +1963,9 @@ globby@^5.0.0:
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
 
-glsl-optimizer-js@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/glsl-optimizer-js/-/glsl-optimizer-js-0.0.1.tgz#aa5948be22e220628aa884bbbd603ae92f5e54e6"
+glsl-optimizer-js@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/glsl-optimizer-js/-/glsl-optimizer-js-0.0.2.tgz#ac6eaa96bd8240c068dc9cdc9f42017312af6fdc"
 
 google-closure-compiler-js@^20180506.0.0:
   version "20180506.0.0"

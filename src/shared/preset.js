@@ -1,7 +1,7 @@
 import _ from 'lodash';
+import mdparser from 'milkdrop-eel-parser';
 import { varMap } from './constants';
 import optimizeEquations from './optimize';
-import mdparser from '../../lib/md-parser.min';
 
 const baseValsDefaults = {
   decay: 0.98,

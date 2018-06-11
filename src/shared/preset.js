@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import mdparser from 'milkdrop-eel-parser';
 import { varMap } from './constants';
-import optimizeEquations from './optimize';
 
 const baseValsDefaults = {
   decay: 0.98,
@@ -280,28 +279,16 @@ export function createBasePresetFuns (presetVersion, presetInit, perFrame, perVe
   const parsedFrameEQs = parsedPreset.perFrameEQs ? parsedPreset.perFrameEQs.trim() : '';
   const parsedPixelEQs = parsedPreset.perPixelEQs ? parsedPreset.perPixelEQs.trim() : '';
 
-  /* eslint-disable no-new-func, max-len */
   const presetMap = { shapes: [], waves: [] };
-  presetMap.init_eqs_str = optimizeEquations(parsedInitEQs);
-  presetMap.frame_eqs_str = optimizeEquations(parsedFrameEQs);
-  presetMap.pixel_eqs_str = optimizeEquations(parsedPixelEQs);
-  presetMap.init_eqs = new Function('a', `${parsedInitEQs} return a;`);
-  presetMap.frame_eqs = new Function('a', `${parsedFrameEQs} return a;`);
-  if (parsedPixelEQs === '') {
-    presetMap.pixel_eqs = '';
-  } else {
-    presetMap.pixel_eqs = new Function('a', `${parsedPixelEQs} return a;`);
-  }
+  presetMap.init_eqs_str = parsedInitEQs;
+  presetMap.frame_eqs_str = parsedFrameEQs;
+  presetMap.pixel_eqs_str = parsedPixelEQs;
 
   for (let i = 0; i < parsedPreset.shapes.length; i++) {
     if (shapes[i].baseVals.enabled !== 0) {
-      const shapeInitEqs = parsedPreset.shapes[i].perFrameInitEQs ? optimizeEquations(parsedPreset.shapes[i].perFrameInitEQs.trim()) : '';
-      const shapeFrameEqs = parsedPreset.shapes[i].perFrameEQs ? optimizeEquations(parsedPreset.shapes[i].perFrameEQs.trim()) : '';
       presetMap.shapes.push(_.assign({}, shapes[i], {
-        init_eqs_str: shapeInitEqs,
-        frame_eqs_str: shapeFrameEqs,
-        init_eqs: new Function('a', `${shapeInitEqs} return a;`),
-        frame_eqs: new Function('a', `${shapeFrameEqs} return a;`),
+        init_eqs_str: parsedPreset.shapes[i].perFrameInitEQs,
+        frame_eqs_str: parsedPreset.shapes[i].perFrameEQs,
       }));
     } else {
       presetMap.shapes.push(shapes[i]);
@@ -310,22 +297,15 @@ export function createBasePresetFuns (presetVersion, presetInit, perFrame, perVe
 
   for (let i = 0; i < parsedPreset.waves.length; i++) {
     if (waves[i].baseVals.enabled !== 0) {
-      const waveInitEqs = parsedPreset.waves[i].perFrameInitEQs ? optimizeEquations(parsedPreset.waves[i].perFrameInitEQs.trim()) : '';
-      const waveFrameEqs = parsedPreset.waves[i].perFrameEQs ? optimizeEquations(parsedPreset.waves[i].perFrameEQs.trim()) : '';
-      const wavePointEqs = parsedPreset.waves[i].perPointEQs ? optimizeEquations(parsedPreset.waves[i].perPointEQs.trim()) : '';
       presetMap.waves.push(_.assign({}, waves[i], {
-        init_eqs_str: waveInitEqs,
-        frame_eqs_str: waveFrameEqs,
-        point_eqs_str: wavePointEqs,
-        init_eqs: new Function('a', `${waveInitEqs} return a;`),
-        frame_eqs: new Function('a', `${waveFrameEqs} return a;`),
-        point_eqs: new Function('a', `${wavePointEqs} return a;`),
+        init_eqs_str: parsedPreset.waves[i].perFrameInitEQs,
+        frame_eqs_str: parsedPreset.waves[i].perFrameEQs,
+        point_eqs_str: parsedPreset.waves[i].perPointEQs,
       }));
     } else {
       presetMap.waves.push(waves[i]);
     }
   }
-  /* eslint-enable no-new-func */
 
   return presetMap;
 }

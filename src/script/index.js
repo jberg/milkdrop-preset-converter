@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import _ from 'lodash';
 import spawnPromiseWithInput from './spawnPromise';
+import optimizeEquations from './optimize';
 import { getShaderParts, prepareShader } from '../shared/shaders';
 import { splitPreset, createBasePresetFuns } from '../shared/preset';
 
@@ -44,6 +45,32 @@ function isUserSampler (line) {
   }
 
   return false;
+}
+
+function optimizePresetEquations (preset) {
+  const presetMap = Object.assign({}, preset);
+  /* eslint-disable max-len */
+  presetMap.init_eqs_str = presetMap.init_eqs_str ? optimizeEquations(presetMap.init_eqs_str) : '';
+  presetMap.frame_eqs_str = presetMap.frame_eqs_str ? optimizeEquations(presetMap.frame_eqs_str) : '';
+  presetMap.pixel_eqs_str = presetMap.pixel_eqs_str ? optimizeEquations(presetMap.pixel_eqs_str) : '';
+
+  for (let i = 0; i < presetMap.shapes.length; i++) {
+    if (presetMap.shapes[i].baseVals.enabled !== 0) {
+      presetMap.shapes[i].init_eqs_str = presetMap.shapes[i].init_eqs_str ? optimizeEquations(presetMap.shapes[i].init_eqs_str) : '';
+      presetMap.shapes[i].frame_eqs_str = presetMap.shapes[i].frame_eqs_str ? optimizeEquations(presetMap.shapes[i].frame_eqs_str) : '';
+    }
+  }
+
+  for (let i = 0; i < presetMap.waves.length; i++) {
+    if (presetMap.waves[i].baseVals.enabled !== 0) {
+      presetMap.waves[i].init_eqs_str = presetMap.waves[i].init_eqs_str ? optimizeEquations(presetMap.waves[i].init_eqs_str) : '';
+      presetMap.waves[i].frame_eqs_str = presetMap.waves[i].frame_eqs_str ? optimizeEquations(presetMap.waves[i].frame_eqs_str) : '';
+      presetMap.waves[i].point_eqs_str = presetMap.waves[i].point_eqs_str ? optimizeEquations(presetMap.waves[i].point_eqs_str) : '';
+    }
+  }
+  /* eslint-enable max-len */
+
+  return presetMap;
 }
 
 function processConvertedShader (shader) {
@@ -103,12 +130,13 @@ const presetOutputName = _.replace(presetName, '.milk', '.json');
 let mainPresetText = _.split(preset, '[preset00]')[1];
 mainPresetText = _.replace(mainPresetText, /\r\n/g, '\n');
 const presetParts = splitPreset(mainPresetText);
-const presetMap = createBasePresetFuns(presetParts.presetVersion,
-                                       presetParts.presetInit,
-                                       presetParts.perFrame,
-                                       presetParts.perVertex,
-                                       presetParts.shapes,
-                                       presetParts.waves);
+let presetMap = createBasePresetFuns(presetParts.presetVersion,
+                                     presetParts.presetInit,
+                                     presetParts.perFrame,
+                                     presetParts.perVertex,
+                                     presetParts.shapes,
+                                     presetParts.waves);
+presetMap = optimizePresetEquations(presetMap);
 
 const warpShader = processShader(prepareShader(presetParts.warp));
 const compShader = processShader(prepareShader(presetParts.comp));
@@ -129,7 +157,7 @@ if (!_.isEmpty(compShader)) {
 
 Promise.all([hlslconvWarp, hlslconvComp])
 .then((shaders) => {
-  const presetOutput = _.assign({ baseVals: presetParts.baseVals }, presetMap, {
+  const presetOutput = Object.assign({ baseVals: presetParts.baseVals }, presetMap, {
     warp: processConvertedShader(shaders[0].toString()),
     comp: processConvertedShader(shaders[1].toString()),
   });

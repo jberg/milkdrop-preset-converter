@@ -1,13 +1,18 @@
 {
   "name": "milkdrop-preset-converter",
   "version": "0.0.1",
-  "private": true,
   "description": "Convert Milkdrop Presets",
-  "main": "dist/md-preset-converter.min.js",
-  "engines": {
-    "node": "^8.4.0",
-    "yarn": "^1.0.1"
+  "author": "Jordan Berg <jordannealberg@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jberg/milkdrop-preset-converter.git"
   },
+  "main": "dist/milkdrop-preset-converter.min.js",
+  "unpkg": "dist/milkdrop-preset-converter.min.js",
+  "files": [
+    "dist/milkdrop-preset-converter.min.js"
+  ],
   "scripts": {
     "build": "webpack  --config config/webpack.config.js --env prod",
     "dev": "webpack  --config config/webpack.config.js --progress --colors --watch --env dev",

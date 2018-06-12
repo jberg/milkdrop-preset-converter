@@ -120,7 +120,7 @@ const args = process.argv.slice(2);
 
 if (args.length < 3) {
   // eslint-disable-next-line no-throw-literal
-  throw 'Not enough arguments (HLSLConverter, path to preset, path to output foler)';
+  throw 'Not enough arguments (MilkdropShaderConverter, path to preset, path to output foler)';
 }
 
 const preset = fs.readFileSync(args[1], 'utf8');

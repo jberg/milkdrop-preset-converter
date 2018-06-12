@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { prepareShader } from '../shared/shaders';
+import { prepareShaderNoDefine } from '../shared/shaders';
 import { splitPreset, createBasePresetFuns } from '../shared/preset';
 import parseHLSL from './hlslParser';
 import optimizeGLSL from './glslOptimizer';
@@ -9,7 +9,7 @@ function convertShader (shader) {
     return '';
   }
 
-  const fullShader = prepareShader(shader);
+  const fullShader = prepareShaderNoDefine(shader);
   let convertedShader = parseHLSL(fullShader, 'shader_body', 'fs');
   convertedShader = _.replace(convertedShader, /#version 100\sprecision highp float;/, '');
   convertedShader = _.join(_.filter(_.split(convertedShader, '\n'), (line) => !_.startsWith(line, '#line')), '\n');

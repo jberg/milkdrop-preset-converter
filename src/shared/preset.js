@@ -275,20 +275,16 @@ export function createBasePresetFuns (presetVersion, presetInit, perFrame, perVe
   const parsedPreset = mdparser.convert_preset_wave_and_shape(presetVersion, presetInit, perFrame,
                                                               perVertex, shapes, waves);
 
-  const parsedInitEQs = parsedPreset.perFrameInitEQs ? parsedPreset.perFrameInitEQs.trim() : '';
-  const parsedFrameEQs = parsedPreset.perFrameEQs ? parsedPreset.perFrameEQs.trim() : '';
-  const parsedPixelEQs = parsedPreset.perPixelEQs ? parsedPreset.perPixelEQs.trim() : '';
-
   const presetMap = { shapes: [], waves: [] };
-  presetMap.init_eqs_str = parsedInitEQs;
-  presetMap.frame_eqs_str = parsedFrameEQs;
-  presetMap.pixel_eqs_str = parsedPixelEQs;
+  presetMap.init_eqs_str = parsedPreset.perFrameInitEQs ? parsedPreset.perFrameInitEQs.trim() : '';
+  presetMap.frame_eqs_str = parsedPreset.perFrameEQs ? parsedPreset.perFrameEQs.trim() : '';
+  presetMap.pixel_eqs_str = parsedPreset.perPixelEQs ? parsedPreset.perPixelEQs.trim() : '';
 
   for (let i = 0; i < parsedPreset.shapes.length; i++) {
     if (shapes[i].baseVals.enabled !== 0) {
       presetMap.shapes.push(_.assign({}, shapes[i], {
-        init_eqs_str: parsedPreset.shapes[i].perFrameInitEQs,
-        frame_eqs_str: parsedPreset.shapes[i].perFrameEQs,
+        init_eqs_str: parsedPreset.shapes[i].perFrameInitEQs ? parsedPreset.shapes[i].perFrameInitEQs : '',
+        frame_eqs_str: parsedPreset.shapes[i].perFrameEQs ? parsedPreset.shapes[i].perFrameEQs : '',
       }));
     } else {
       presetMap.shapes.push(shapes[i]);
@@ -298,9 +294,9 @@ export function createBasePresetFuns (presetVersion, presetInit, perFrame, perVe
   for (let i = 0; i < parsedPreset.waves.length; i++) {
     if (waves[i].baseVals.enabled !== 0) {
       presetMap.waves.push(_.assign({}, waves[i], {
-        init_eqs_str: parsedPreset.waves[i].perFrameInitEQs,
-        frame_eqs_str: parsedPreset.waves[i].perFrameEQs,
-        point_eqs_str: parsedPreset.waves[i].perPointEQs,
+        init_eqs_str: parsedPreset.waves[i].perFrameInitEQs ? parsedPreset.waves[i].perFrameInitEQs : '',
+        frame_eqs_str: parsedPreset.waves[i].perFrameEQs ? parsedPreset.waves[i].perFrameEQs : '',
+        point_eqs_str: parsedPreset.waves[i].perPointEQs ? parsedPreset.waves[i].perPointEQs : '',
       }));
     } else {
       presetMap.waves.push(waves[i]);

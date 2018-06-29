@@ -96,11 +96,7 @@ let scriptConfig = {
         test: /(\.js)$/,
         exclude: /node_modules|lib/,
         use: {
-          loader: 'babel-loader?cacheDirectory',
-          options: {
-            plugins: ['transform-runtime'],
-            presets: ['env']
-          }
+          loader: 'babel-loader?cacheDirectory'
         }
       },
       {
@@ -111,11 +107,15 @@ let scriptConfig = {
         },
         enforce: 'pre'
       },
+      {
+        test: /\.node$/,
+        loader: 'node-loader'
+      }
     ]
   },
   resolve: {
     modules: [scriptRoot, sharedRoot, nodeRoot],
-    extensions: ['.js']
+    extensions: ['.js', '.node']
   },
   plugins: []
 };

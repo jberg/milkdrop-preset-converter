@@ -25,6 +25,7 @@
     "hlslparser-js": "^0.0.1",
     "lodash": "^4.17.4",
     "milkdrop-eel-parser": "^0.0.1",
+    "milkdrop-shader-converter": "^0.0.2",
     "nan": "^2.8.0"
   },
   "devDependencies": {
@@ -41,6 +42,7 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.6.1",
+    "node-loader": "^0.6.0",
     "uglifyjs-webpack-plugin": "^1.1.8",
     "webpack": "^3.10.0",
     "yargs": "^11.0.0"

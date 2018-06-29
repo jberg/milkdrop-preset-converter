@@ -11,7 +11,8 @@
   "main": "dist/milkdrop-preset-converter.min.js",
   "unpkg": "dist/milkdrop-preset-converter.min.js",
   "files": [
-    "dist/milkdrop-preset-converter.min.js"
+    "dist/milkdrop-preset-converter.min.js",
+    "dist/milkdrop-preset-converter-node.min.js"
   ],
   "scripts": {
     "build": "webpack  --config config/webpack.config.js --env prod",

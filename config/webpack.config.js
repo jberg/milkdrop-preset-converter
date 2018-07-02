@@ -88,7 +88,9 @@ let scriptConfig = {
   target: 'node',
   output: {
     path: outputPath,
-    filename: scriptOutputFile + '.js'
+    filename: scriptOutputFile + '.js',
+    library: 'milkdropPresetConverter',
+    libraryTarget: 'umd'
   },
   module: {
     rules: [

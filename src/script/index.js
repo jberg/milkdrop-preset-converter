@@ -1,5 +1,3 @@
-import path from 'path';
-import fs from 'fs';
 import _ from 'lodash';
 import { convertHLSLString } from 'milkdrop-shader-converter';
 import optimizeEquations from './optimize';
@@ -116,53 +114,47 @@ function processConvertedShader (shader) {
   return `${fragShaderHeaderText} shader_body { ${fragShaderText} }`;
 }
 
-const args = process.argv.slice(2);
+// eslint-disable-next-line import/prefer-default-export
+export function convertPreset (preset, optimize = true) {
+  let mainPresetText = _.split(preset, '[preset00]')[1];
+  mainPresetText = _.replace(mainPresetText, /\r\n/g, '\n');
+  const presetParts = splitPreset(mainPresetText);
+  let presetMap = createBasePresetFuns(presetParts.presetVersion,
+                                       presetParts.presetInit,
+                                       presetParts.perFrame,
+                                       presetParts.perVertex,
+                                       presetParts.shapes,
+                                       presetParts.waves);
+  if (optimize) {
+    presetMap = optimizePresetEquations(presetMap);
+  }
 
-if (args.length < 2) {
-  // eslint-disable-next-line no-throw-literal
-  throw 'Not enough arguments (path to preset, path to output foler)';
+  const warpShader = processShader(prepareShader(presetParts.warp));
+  const compShader = processShader(prepareShader(presetParts.comp));
+
+  let hlslconvWarp;
+  if (!_.isEmpty(warpShader)) {
+    hlslconvWarp = convertHLSLString(warpShader) || '';
+  } else {
+    hlslconvWarp = '';
+  }
+
+  let hlslconvComp;
+  if (!_.isEmpty(compShader)) {
+    hlslconvComp = convertHLSLString(compShader) || '';
+  } else {
+    hlslconvComp = '';
+  }
+
+  const presetOutput = Object.assign({ baseVals: presetParts.baseVals }, presetMap, {
+    warp: processConvertedShader(hlslconvWarp.toString()),
+    comp: processConvertedShader(hlslconvComp.toString()),
+  });
+
+  if ((_.isEmpty(presetOutput.warp) && !_.isEmpty(warpShader)) ||
+      (_.isEmpty(presetOutput.comp) && !_.isEmpty(compShader))) {
+    throw new Error('error translating shaders');
+  }
+
+  return presetOutput;
 }
-
-const preset = fs.readFileSync(args[0], 'utf8');
-const presetName = path.basename(args[0]);
-const presetOutputName = _.replace(presetName, '.milk', '.json');
-
-let mainPresetText = _.split(preset, '[preset00]')[1];
-mainPresetText = _.replace(mainPresetText, /\r\n/g, '\n');
-const presetParts = splitPreset(mainPresetText);
-let presetMap = createBasePresetFuns(presetParts.presetVersion,
-                                     presetParts.presetInit,
-                                     presetParts.perFrame,
-                                     presetParts.perVertex,
-                                     presetParts.shapes,
-                                     presetParts.waves);
-presetMap = optimizePresetEquations(presetMap);
-
-const warpShader = processShader(prepareShader(presetParts.warp));
-const compShader = processShader(prepareShader(presetParts.comp));
-
-let hlslconvWarp;
-if (!_.isEmpty(warpShader)) {
-  hlslconvWarp = convertHLSLString(warpShader) || '';
-} else {
-  hlslconvWarp = '';
-}
-
-let hlslconvComp;
-if (!_.isEmpty(compShader)) {
-  hlslconvComp = convertHLSLString(compShader) || '';
-} else {
-  hlslconvComp = '';
-}
-
-const presetOutput = Object.assign({ baseVals: presetParts.baseVals }, presetMap, {
-  warp: processConvertedShader(hlslconvWarp.toString()),
-  comp: processConvertedShader(hlslconvComp.toString()),
-});
-
-if ((_.isEmpty(presetOutput.warp) && !_.isEmpty(warpShader)) ||
-    (_.isEmpty(presetOutput.comp) && !_.isEmpty(compShader))) {
-  throw new Error('error translating shaders');
-}
-
-fs.writeFileSync(`${args[1]}/${presetOutputName}`, JSON.stringify(presetOutput));

@@ -2,7 +2,10 @@ import _ from 'lodash';
 import { convertHLSLString } from 'milkdrop-shader-converter';
 import optimizeEquations from './optimize';
 import { getShaderParts, prepareShader } from '../shared/shaders';
-import { splitPreset, createBasePresetFuns } from '../shared/preset';
+import {
+  splitPreset, convertPresetEquations, convertWaveEquations, convertShapeEquations,
+  createBasePresetFuns
+} from '../shared/preset';
 
 function processShader (shader) {
   if (_.isEmpty(shader)) {
@@ -114,7 +117,6 @@ function processConvertedShader (shader) {
   return `${fragShaderHeaderText} shader_body { ${fragShaderText} }`;
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export function convertPreset (preset, optimize = true) {
   let mainPresetText = _.split(preset, '[preset00]')[1];
   mainPresetText = _.replace(mainPresetText, /\r\n/g, '\n');
@@ -158,3 +160,5 @@ export function convertPreset (preset, optimize = true) {
 
   return presetOutput;
 }
+
+export { convertPresetEquations, convertWaveEquations, convertShapeEquations };

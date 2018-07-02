@@ -271,6 +271,35 @@ export function splitPreset (text) {
   };
 }
 
+export function convertPresetEquations (initEQs, frameEQs, pixelEQs) {
+  const parsedPreset = mdparser.convert_basic_preset(2, initEQs, frameEQs, pixelEQs);
+
+  return {
+    init_eqs_str: parsedPreset.perFrameInitEQs ? parsedPreset.perFrameInitEQs.trim() : '',
+    frame_eqs_str: parsedPreset.perFrameEQs ? parsedPreset.perFrameEQs.trim() : '',
+    pixel_eqs_str: parsedPreset.perPixelEQs ? parsedPreset.perPixelEQs.trim() : ''
+  };
+}
+
+export function convertWaveEquations (initEQs, frameEQs, pointEQs) {
+  const parsedPreset = mdparser.make_wave_map(2, initEQs, frameEQs, pointEQs);
+
+  return {
+    init_eqs_str: parsedPreset.perFrameInitEQs ? parsedPreset.perFrameInitEQs.trim() : '',
+    frame_eqs_str: parsedPreset.perFrameEQs ? parsedPreset.perFrameEQs.trim() : '',
+    point_eqs_str: parsedPreset.perPointEQs ? parsedPreset.perPointEQs.trim() : ''
+  };
+}
+
+export function convertShapeEquations (initEQs, frameEQs) {
+  const parsedPreset = mdparser.make_shape_map(2, initEQs, frameEQs);
+
+  return {
+    init_eqs_str: parsedPreset.perFrameInitEQs ? parsedPreset.perFrameInitEQs.trim() : '',
+    frame_eqs_str: parsedPreset.perFrameEQs ? parsedPreset.perFrameEQs.trim() : ''
+  };
+}
+
 export function createBasePresetFuns (presetVersion, presetInit, perFrame, perVertex, shapes, waves) {
   const parsedPreset = mdparser.convert_preset_wave_and_shape(presetVersion, presetInit, perFrame,
                                                               perVertex, shapes, waves);

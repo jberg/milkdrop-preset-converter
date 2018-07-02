@@ -161,4 +161,13 @@ export function convertPreset (preset, optimize = true) {
   return presetOutput;
 }
 
+export function convertPresetShader (shader) {
+  const processedShader = processShader(prepareShader(shader));
+  if (!_.isEmpty(processedShader)) {
+    return convertHLSLString(processedShader) || '';
+  }
+
+  return '';
+}
+
 export { convertPresetEquations, convertWaveEquations, convertShapeEquations };

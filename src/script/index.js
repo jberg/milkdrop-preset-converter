@@ -127,8 +127,13 @@ export function convertPresetShader (shader) {
   return '';
 }
 
-export function convertPresetMap (preset, optimize = true) {
-  let presetMap = Object.assign({}, preset);
+export function convertPresetMap (presetParts, optimize = true) {
+  let presetMap = createBasePresetFuns(presetParts.presetVersion,
+                                       presetParts.presetInit,
+                                       presetParts.perFrame,
+                                       presetParts.perVertex,
+                                       presetParts.shapes,
+                                       presetParts.waves);
   if (optimize) {
     presetMap = optimizePresetEquations(presetMap);
   }
@@ -153,14 +158,8 @@ export function convertPreset (preset, optimize = true) {
   let mainPresetText = _.split(preset, '[preset00]')[1];
   mainPresetText = _.replace(mainPresetText, /\r\n/g, '\n');
   const presetParts = splitPreset(mainPresetText);
-  let presetMap = createBasePresetFuns(presetParts.presetVersion,
-                                       presetParts.presetInit,
-                                       presetParts.perFrame,
-                                       presetParts.perVertex,
-                                       presetParts.shapes,
-                                       presetParts.waves);
 
-  return convertPresetMap(presetMap, optimize);
+  return convertPresetMap(presetParts, optimize);
 }
 
 export { splitPreset, convertPresetEquations, convertWaveEquations, convertShapeEquations };

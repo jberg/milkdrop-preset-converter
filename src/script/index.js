@@ -117,36 +117,32 @@ function processConvertedShader (shader) {
   return `${fragShaderHeaderText} shader_body { ${fragShaderText} }`;
 }
 
+export function convertPresetShader (shader) {
+  const processedShader = processShader(prepareShader(shader));
+  if (!_.isEmpty(processedShader)) {
+    const convertedShader = convertHLSLString(processedShader) || '';
+    return convertedShader.toString();
+  }
+
+  return '';
+}
+
 export function convertPresetMap (preset, optimize = true) {
   let presetMap = Object.assign({}, preset);
   if (optimize) {
     presetMap = optimizePresetEquations(presetMap);
   }
 
-  const warpShader = processShader(prepareShader(presetParts.warp));
-  const compShader = processShader(prepareShader(presetParts.comp));
-
-  let hlslconvWarp;
-  if (!_.isEmpty(warpShader)) {
-    hlslconvWarp = convertHLSLString(warpShader) || '';
-  } else {
-    hlslconvWarp = '';
-  }
-
-  let hlslconvComp;
-  if (!_.isEmpty(compShader)) {
-    hlslconvComp = convertHLSLString(compShader) || '';
-  } else {
-    hlslconvComp = '';
-  }
+  const warpShader = convertPresetShader(presetParts.warp);
+  const compShader = convertPresetShader(presetParts.comp);
 
   const presetOutput = Object.assign({ baseVals: presetParts.baseVals }, presetMap, {
-    warp: processConvertedShader(hlslconvWarp.toString()),
-    comp: processConvertedShader(hlslconvComp.toString()),
+    warp: processConvertedShader(warpShader),
+    comp: processConvertedShader(compShader),
   });
 
-  if ((_.isEmpty(presetOutput.warp) && !_.isEmpty(warpShader)) ||
-      (_.isEmpty(presetOutput.comp) && !_.isEmpty(compShader))) {
+  if ((_.isEmpty(presetOutput.warp) && !_.isEmpty(presetParts.warp)) ||
+      (_.isEmpty(presetOutput.comp) && !_.isEmpty(presetParts.comp))) {
     throw new Error('error translating shaders');
   }
 
@@ -165,15 +161,6 @@ export function convertPreset (preset, optimize = true) {
                                        presetParts.waves);
 
   return convertPresetMap(presetMap, optimize);
-}
-
-export function convertPresetShader (shader) {
-  const processedShader = processShader(prepareShader(shader));
-  if (!_.isEmpty(processedShader)) {
-    return convertHLSLString(processedShader) || '';
-  }
-
-  return '';
 }
 
 export { splitPreset, convertPresetEquations, convertWaveEquations, convertShapeEquations };

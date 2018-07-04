@@ -117,16 +117,8 @@ function processConvertedShader (shader) {
   return `${fragShaderHeaderText} shader_body { ${fragShaderText} }`;
 }
 
-export function convertPreset (preset, optimize = true) {
-  let mainPresetText = _.split(preset, '[preset00]')[1];
-  mainPresetText = _.replace(mainPresetText, /\r\n/g, '\n');
-  const presetParts = splitPreset(mainPresetText);
-  let presetMap = createBasePresetFuns(presetParts.presetVersion,
-                                       presetParts.presetInit,
-                                       presetParts.perFrame,
-                                       presetParts.perVertex,
-                                       presetParts.shapes,
-                                       presetParts.waves);
+export function convertPresetMap (preset, optimize = true) {
+  let presetMap = Object.assign({}, preset);
   if (optimize) {
     presetMap = optimizePresetEquations(presetMap);
   }
@@ -161,6 +153,20 @@ export function convertPreset (preset, optimize = true) {
   return presetOutput;
 }
 
+export function convertPreset (preset, optimize = true) {
+  let mainPresetText = _.split(preset, '[preset00]')[1];
+  mainPresetText = _.replace(mainPresetText, /\r\n/g, '\n');
+  const presetParts = splitPreset(mainPresetText);
+  let presetMap = createBasePresetFuns(presetParts.presetVersion,
+                                       presetParts.presetInit,
+                                       presetParts.perFrame,
+                                       presetParts.perVertex,
+                                       presetParts.shapes,
+                                       presetParts.waves);
+
+  return convertPresetMap(presetMap, optimize);
+}
+
 export function convertPresetShader (shader) {
   const processedShader = processShader(prepareShader(shader));
   if (!_.isEmpty(processedShader)) {
@@ -170,4 +176,4 @@ export function convertPresetShader (shader) {
   return '';
 }
 
-export { convertPresetEquations, convertWaveEquations, convertShapeEquations };
+export { splitPreset, convertPresetEquations, convertWaveEquations, convertShapeEquations };

@@ -2719,9 +2719,9 @@ milkdrop-eel-parser@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/milkdrop-eel-parser/-/milkdrop-eel-parser-0.0.1.tgz#1c1a82bb7877d9df6d45e6f0b602b4cd1a5dc26d"
 
-milkdrop-shader-converter@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/milkdrop-shader-converter/-/milkdrop-shader-converter-0.0.3.tgz#22c0e07b5101b02ffbb9c40669c46675ddc0fe2e"
+milkdrop-shader-converter@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/milkdrop-shader-converter/-/milkdrop-shader-converter-0.0.7.tgz#a4a15a062ed9463dac79bce9c94761e0721d7266"
   dependencies:
     cmake-js "^3.7.3"
     nan "^2.10.0"

@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { prepareShaderNoDefine } from '../shared/shaders';
-import { splitPreset, createBasePresetFuns } from '../shared/preset';
+import { splitPreset, prepareShaderNoDefine, createBasePresetFuns } from 'milkdrop-preset-utils';
+import milkdropParser from 'milkdrop-eel-parser';
 import parseHLSL from './hlslParser';
 import optimizeGLSL from './glslOptimizer';
 
@@ -36,12 +36,15 @@ export function convertPreset (text) {
   const mainPresetText = _.split(text, '[preset00]')[1];
   const presetParts = splitPreset(mainPresetText);
 
-  const presetMap = createBasePresetFuns(presetParts.presetVersion,
-                                         presetParts.presetInit,
-                                         presetParts.perFrame,
-                                         presetParts.perVertex,
-                                         presetParts.shapes,
-                                         presetParts.waves);
+  const parsedPreset = milkdropParser.convert_preset_wave_and_shape(presetParts.presetVersion,
+                                                                    presetParts.presetInit,
+                                                                    presetParts.perFrame,
+                                                                    presetParts.perVertex,
+                                                                    presetParts.shapes,
+                                                                    presetParts.waves);
+  const presetMap = createBasePresetFuns(parsedPreset,
+                                       presetParts.shapes,
+                                       presetParts.waves);
   const warpShader = convertShader(presetParts.warp);
   const compShader = convertShader(presetParts.comp);
 

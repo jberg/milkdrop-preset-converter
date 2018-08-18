@@ -7,6 +7,7 @@ const env  = require('yargs').argv.env;
 
 const webRoot = path.join(__dirname, '..', 'src/web');
 const scriptRoot = path.join(__dirname, '..', 'src/script');
+const awsRoot = path.join(__dirname, '..', 'src/aws');
 const sharedRoot = path.join(__dirname, '..', 'src/shared');
 const nodeRoot = path.join(__dirname, '..', 'node_modules');
 const outputPath = path.join(__dirname, '..', 'dist');
@@ -63,6 +64,72 @@ let clientConfig = {
 
 if (env === 'prod') {
   clientConfig.plugins.push(
+    new webpack.NoEmitOnErrorsPlugin(),
+    new webpack.DefinePlugin({
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production')
+      }
+    }),
+    new webpack.optimize.OccurrenceOrderPlugin(),
+    new webpack.optimize.ModuleConcatenationPlugin(),
+
+    new UglifyJsPlugin({ parallel: true })
+  );
+}
+
+
+let awsOutputFile = 'milkdrop-preset-converter-aws';
+
+if (env === 'prod') {
+  awsOutputFile += '.min';
+}
+
+let awsConfig = {
+  entry: awsRoot + '/index.js',
+  devtool: 'source-map',
+  target: 'web',
+  output: {
+    path: outputPath,
+    filename: awsOutputFile + '.js',
+    library: 'milkdropPresetConverter',
+    libraryTarget: 'umd'
+  },
+  module: {
+    rules: [
+      {
+        test: /(\.js)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader?cacheDirectory',
+          options: {
+            plugins: ['transform-runtime'],
+            presets: ['env']
+          }
+        }
+      },
+      {
+        test: /(\.js)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'eslint-loader'
+        },
+        enforce: 'pre'
+      },
+    ]
+  },
+  resolve: {
+    modules: [awsRoot, sharedRoot, nodeRoot],
+    extensions: ['.js']
+  },
+  plugins: [],
+  node: {
+    fs: 'empty'
+  }
+};
+
+
+if (env === 'prod') {
+  awsConfig.plugins.push(
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
@@ -138,4 +205,4 @@ if (env === 'prod') {
   );
 }
 
-module.exports = [clientConfig, scriptConfig];
+module.exports = [clientConfig, awsConfig, scriptConfig];

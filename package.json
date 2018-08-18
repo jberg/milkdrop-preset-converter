@@ -12,6 +12,7 @@
   "unpkg": "dist/milkdrop-preset-converter.min.js",
   "files": [
     "dist/milkdrop-preset-converter.min.js",
+    "dist/milkdrop-preset-converter-aws.min.js",
     "dist/milkdrop-preset-converter-node.min.js"
   ],
   "scripts": {
@@ -26,6 +27,7 @@
     "hlslparser-js": "^0.0.1",
     "lodash": "^4.17.4",
     "milkdrop-eel-parser": "^0.0.1",
+    "milkdrop-preset-utils": "^0.0.4",
     "milkdrop-shader-converter": "^0.0.7",
     "nan": "^2.8.0"
   },

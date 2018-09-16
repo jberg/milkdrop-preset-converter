@@ -33,12 +33,12 @@ export async function convertPreset (text) {
                                                                     presetParts.shapes,
                                                                     presetParts.waves);
 
-  const [presetMap, warpShader, compShader] = Promise.all([
+  const [presetMap, warpShader, compShader] = await Promise.all([
     createBasePresetFuns(parsedPreset,
                          presetParts.shapes,
                          presetParts.waves),
-    await convertShader(presetParts.warp),
-    await convertShader(presetParts.comp)
+    convertShader(presetParts.warp),
+    convertShader(presetParts.comp)
   ]);
 
   return _.assign({}, presetMap, {

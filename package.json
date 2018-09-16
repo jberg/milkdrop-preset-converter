@@ -15,15 +15,15 @@
   ],
   "scripts": {
     "build": "webpack  --config config/webpack.config.js --env prod",
-    "dev": "webpack  --config config/webpack.config.js --progress --colors --watch --env dev"
+    "dev": "webpack  --config config/webpack.config.js --progress --colors --watch --env dev",
+    "test": "jasmine test/index.spec.js"
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
-    "glsl-optimizer-js": "^0.0.2",
-    "hlslparser-js": "^0.0.1",
+    "hlslparser-js": "^0.1.1",
     "lodash": "^4.17.4",
     "milkdrop-eel-parser": "^0.0.1",
-    "milkdrop-preset-utils": "^0.0.4"
+    "milkdrop-preset-utils": "^0.1.0"
   },
   "devDependencies": {
     "babel": "^6.23.0",
@@ -38,6 +38,7 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.6.1",
+    "jasmine": "^3.2.0",
     "uglifyjs-webpack-plugin": "^1.1.8",
     "webpack": "^3.10.0",
     "yargs": "^11.0.0"

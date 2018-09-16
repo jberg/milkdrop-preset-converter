@@ -1,38 +1,28 @@
 import _ from 'lodash';
-import { splitPreset, prepareShaderNoDefine, createBasePresetFuns } from 'milkdrop-preset-utils';
+import {
+  splitPreset,
+  prepareShader,
+  processUnOptimizedShader,
+  createBasePresetFuns
+} from 'milkdrop-preset-utils';
 import milkdropParser from 'milkdrop-eel-parser';
-import parseHLSL from './hlslParser';
-import optimizeGLSL from './glslOptimizer';
+import { convertHLSLShader } from 'hlslparser-js';
 
-function convertShader (shader) {
+export async function convertShader (shader) {
   if (shader.length === 0) {
     return '';
   }
 
-  const fullShader = prepareShaderNoDefine(shader);
-  let convertedShader = parseHLSL(fullShader, 'shader_body', 'fs');
-  convertedShader = _.replace(convertedShader, /#version 100\sprecision highp float;/, '');
-  convertedShader = _.join(_.filter(_.split(convertedShader, '\n'), (line) => !_.startsWith(line, '#line')), '\n');
-  convertedShader = _.replace(convertedShader, /vec2 uv;\s+uv = frag_TEXCOORD0;/, '');
-  convertedShader = _.replace(convertedShader, 'varying vec2 frag_TEXCOORD0;', 'varying vec2 uv;');
-  convertedShader = _.replace(convertedShader, 'gl_FragData[0]', 'gl_FragColor');
-  convertedShader = _.replace(convertedShader, 'uniform float M_INV_PI_2', 'const float M_INV_PI_2');
-  convertedShader = _.replace(convertedShader, 'uniform float M_PI_2', 'const float M_PI_2');
-  convertedShader = _.replace(convertedShader, 'uniform float M_PI', 'const float M_PI');
+  const shaderBodyName = 'main_shader_sentinel';
+  let fullShader = prepareShader(shader);
+  fullShader = fullShader.replace('float4 shader_body (', `float4 ${shaderBodyName} (`);
+  let convertedShader = await convertHLSLShader(fullShader, shaderBodyName, 'fs');
+  convertedShader = processUnOptimizedShader(convertedShader);
 
-  let optimizedShader = optimizeGLSL(convertedShader, 1, false);
-  optimizedShader = _.replace(optimizedShader, /void main \(\)\s*\{/, 'shader_body {');
-  optimizedShader = _.replace(optimizedShader, /gl_FragColor = (.+);/, (match, p1) => `ret = ${p1}.xyz;`);
-
-  let shaderLines = _.split(optimizedShader, '\n');
-  shaderLines = _.filter(shaderLines, (line) => !_.startsWith(line, 'varying') &&
-                                                !_.startsWith(line, 'uniform'));
-
-  return _.join(shaderLines, '\n');
+  return convertedShader;
 }
 
-// eslint-disable-next-line import/prefer-default-export
-export function convertPreset (text) {
+export async function convertPreset (text) {
   const mainPresetText = _.split(text, '[preset00]')[1];
   const presetParts = splitPreset(mainPresetText);
 
@@ -42,11 +32,14 @@ export function convertPreset (text) {
                                                                     presetParts.perVertex,
                                                                     presetParts.shapes,
                                                                     presetParts.waves);
-  const presetMap = createBasePresetFuns(parsedPreset,
-                                       presetParts.shapes,
-                                       presetParts.waves);
-  const warpShader = convertShader(presetParts.warp);
-  const compShader = convertShader(presetParts.comp);
+
+  const [presetMap, warpShader, compShader] = Promise.all([
+    createBasePresetFuns(parsedPreset,
+                         presetParts.shapes,
+                         presetParts.waves),
+    await convertShader(presetParts.warp),
+    await convertShader(presetParts.comp)
+  ]);
 
   return _.assign({}, presetMap, {
     baseVals: presetParts.baseVals,

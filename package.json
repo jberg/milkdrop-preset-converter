@@ -22,7 +22,7 @@
     "babel-runtime": "^6.26.0",
     "hlslparser-js": "^0.1.1",
     "lodash": "^4.17.4",
-    "milkdrop-eel-parser": "^0.0.1",
+    "milkdrop-eel-parser": "^0.0.4",
     "milkdrop-preset-utils": "^0.1.0"
   },
   "devDependencies": {

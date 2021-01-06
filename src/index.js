@@ -45,6 +45,7 @@ export async function convertPreset (text) {
     baseVals: presetParts.baseVals,
     warp: warpShader,
     comp: compShader,
+    presetParts
   });
 }
 
